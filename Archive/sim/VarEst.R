@@ -1,0 +1,94 @@
+# Experiments for variance estimation
+# in high-dimensional covariates
+
+N = 2000
+n = 200
+BIAS_res = NULL
+SE_res = NULL
+SEhat_res = NULL
+pvec = (1:18) * 10
+
+X_whole = matrix(rnorm(N * 500, 2, 1), nr = N, nc = 500)
+
+Omega = matrix((n - N) * N / n^2 / (n-1), nr = n, nc = n)
+diag(Omega) = (N-n) * N / n^2
+
+for(p in pvec){
+  # p = 10
+  set.seed(1)
+  print(p)
+  s = 1
+  
+  X = X_whole[,1:p]
+  beta = c(rep(1, s), rep(0, p - s))
+  e = rnorm(N, 0, 1)
+  y = X %*% beta + e
+  t_y = sum(y)
+  
+  # pi1 = X[,1]^2 / sum(X[,1]^2) * n
+  pi1 = rep(n / N, N)
+  d1 = 1 / pi1
+  
+  res = NULL
+  res2 = NULL
+  res3 = NULL
+  SIMNUM = 1000
+  for(simnum in 1:SIMNUM){
+    # set.seed(simnum)
+    Index = sample(1:N, size = n, replace = FALSE, prob = pi1)
+    y_s = y[Index]
+    X_s = X[Index, ]
+    d1_s = d1[Index]
+    lm_obj = lm(y_s ~  X_s, weights = d1_s)
+    beta_hat = lm_obj$coefficients[-1]
+    #drop(solve(t(X_s) %*% diag(d1_s) %*% X_s, t(X_s) %*% diag(d1_s) %*% y_s))
+    
+    # beta_hat = unname(lm(y_s ~  t(apply(X_s, 1, function(k) k 
+    # - colSums(X_s * d1_s) / N)), weights = d1_s)$coefficients[-1])
+    
+    y_HT = sum(y_s * d1_s)
+    
+    y_diff = drop(colSums(X) %*% beta + sum((y_s - drop(X_s %*% beta)) * d1_s))
+    
+    y_GREG = drop(colSums(X) %*% beta_hat + sum((y_s - drop(X_s %*% beta_hat)) * d1_s))
+    
+    y_model = drop(colSums(X) %*% beta_hat)
+    
+    # sigma_Debiased = sqrt(drop(t(e_s)  %*% Omega %*% e_s * N^2 / n^2))
+    
+    res = rbind(res, c(HT = y_HT, Diff = y_diff, GREG = y_GREG))
+    
+    sigma_HT = sqrt(t(y_s) %*% Omega %*% y_s)
+    sigma_diff = sqrt(t(y_s - drop(X_s %*% beta)) %*% Omega %*% (y_s - drop(X_s %*% beta)))
+    sigma_GREG = sqrt(t(y_s - drop(X_s %*% beta_hat)) %*% Omega %*% (y_s - drop(X_s %*% beta_hat)))
+    
+    res2 = rbind(res2, c(HT = sigma_HT, Diff = sigma_diff, GREG = sigma_GREG))
+  }
+  
+  BIAS = colMeans(res - t_y)
+  SE = apply(res, 2, function(x) sqrt(var(x) * (length(x)-1)/length(x) ))
+  RMSE = apply(res - t_y, 2, function(x) sqrt(mean(x^2)))
+  
+  se_hat = colMeans(res2)
+  
+  cbind(BIAS, SE, RMSE)
+  
+  BIAS_res = rbind(BIAS_res, BIAS)
+  SE_res = rbind(SE_res, SE)
+  SEhat_res = rbind(SEhat_res, se_hat)
+}
+
+plot(pvec, SE_res[,3], type = "l", col = 1, ylim = c(min(BIAS_res), max(SE_res)), main = "Variance estimation under different number of covariates", xlab = "p", ylab = " ")
+points(pvec, SE_res[,2], type = "l", col = 2)
+points(pvec, SE_res[,1], type = "l", col = 4)
+legend("topleft", c("GREG", "Diff", "HT"), col = c(1,2,4), lty = 1, title = "True variance")
+
+points(pvec, SEhat_res[,3], type = "l", col = 1, lty = 2)
+points(pvec, SEhat_res[,2], type = "l", col = 2, lty = 2)
+points(pvec, SEhat_res[,1], type = "l", col = 4, lty = 2)
+legend("bottomleft", c("GREG", "Diff", "HT"), col = c(1,2,4), lty = 2, title = "Estimated Variance")
+
+# points(pvec, BIAS_res[,3], type = "l", col = 1, lty = 2)
+# points(pvec, BIAS_res[,2], type = "l", col = 2, lty = 2)
+# points(pvec, BIAS_res[,1], type = "l", col = 4, lty = 2)
+# legend("bottomleft", c("GREG", "Diff", "HT"), col = c(1,2,4), lty = 2, title = "BIAS")

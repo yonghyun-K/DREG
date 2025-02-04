@@ -1,0 +1,323 @@
+N = 2000
+n = 500
+m = n / 2
+p = 40
+s = 5
+wls = F
+
+set.seed(2)
+
+# X = matrix(rnorm(N * p, 2, 1), nr = N, nc = p)
+library(xtable)
+library(mvtnorm)
+
+ar1_cor <- function(n, rho) {
+  exponent <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) - 
+                    (1:n - 1))
+  rho^exponent
+}
+
+X = rmvnorm(n = N, rep(0, p), ar1_cor(p, 0.2)) + 2
+# X = pnorm(X)
+
+# X = matrix(rnorm(N * p, 2, 1), nr = N, nc = p)
+
+# X = X * c(rep(1, N), rep(-1, N))
+
+# X = matrix(rnorm(N * p, 2, 1), nr = N, nc = p)
+# X = scale(X, T, T)
+
+beta = c(rep(1, s), rep(0, p - s))
+e = rnorm(N, 0, 1)
+y = X %*% beta + e 
+t_y = sum(y)
+
+# pi1 = e^2 / sum(e^2) * n
+
+# r = 0
+SE_res = NULL
+RMSE_res = NULL
+X = cbind(1, X)
+beta = c(0, beta)
+# seq_r = seq(from = 0, to = 1, by = 0.1)
+seq_r = 0  # To be changed
+for(r in seq_r){
+  print(r)
+  if(r == 0){
+    z = rnorm(n = N, 0, 1)
+  }else{
+    z = rnorm(n = N, 0, sqrt((1 - r) / r)) + e
+  }
+  # z = rnorm(n = N, 0, sqrt(ratio)) + e
+  # z = e
+  # z = rnorm(n = N, 0, 1)
+  z_sorted_idx = order(z)
+  len = round(N / 4)
+  
+  # pi1 = rep(n / N, N)
+  # pi1 = rep(n / N, N) + rnorm(N, 0, 0.0025)
+  # pi1 = rep(n / N, N) + e * n / N * 0.2
+  
+  # pi1 = (y - min(y)) / (max(y) - min(y)) / 2 + 0.25
+  # pi1 = (e - min(e)) / (max(e) - min(e)) / 2 + 0.10
+  # pi1 = pi1 / sum(pi1) * n
+  # d1 = 1 / pi1
+  
+  res = NULL
+  res2 = NULL
+  res3 = NULL
+  SIMNUM = 500
+  
+  for(simnum in 1:SIMNUM){
+    # print(simnum)
+    set.seed(simnum)
+    
+    Index = rep(0, n)
+    d1 = rep(0, N)
+    n_h = c(15, 20, 30, 35) / 100 * n
+    # n_h = c(25, 25, 25, 25) / 100 * n
+    cumn_h = cumsum(n_h)
+    
+    Omega = matrix(0, nr = n, nc = n)
+    
+    for (i in 1:4){
+      Idx_z = (len * (i - 1)+ 1): (len * i)
+      Idx = z_sorted_idx[Idx_z]
+      d1[Idx] = len / n_h[i]
+      from = ifelse(i == 1, 0, cumn_h[i-1])
+      Index[(from + 1) : cumn_h[i]] = sample(Idx, size = n_h[i], replace = FALSE)
+      # len^2 / n_h[i]^2 - len * (len - 1) / n_h[i] / (n_h[i] - 1) 
+      # (1 - n_h[i] / (n_h[i]-1) * (len-1) / len)* len^2 / n_h[i]^2
+      Omega_tmp = matrix(len^2 / n_h[i]^2 - len * (len - 1) / n_h[i] / (n_h[i] - 1) , nr = n_h[i], nc = n_h[i])
+      diag(Omega_tmp) = (1 - n_h[i] / len)  * len^2 / n_h[i]^2
+      
+      Omega[(from + 1) : cumn_h[i], (from + 1) : cumn_h[i]] = Omega_tmp
+      
+    }
+    
+    if(simnum == 1) plot(1 / d1, e, xlab = "Inclusion Probability", ylab = "error")
+    
+    # Index = sample(1:N, size = n, replace = FALSE, prob = pi1)
+    y_s = y[Index]
+    X_s = X[Index, ,drop = F]
+    d1_s = d1[Index]
+    if(wls){
+      lm_obj = lm(y_s ~  0 + X_s, weights = d1_s)
+    }else{
+      lm_obj = lm(y_s ~  0 + X_s)
+    }
+
+    beta_hat = lm_obj$coefficients
+    #drop(solve(t(X_s) %*% diag(d1_s) %*% X_s, t(X_s) %*% diag(d1_s) %*% y_s))
+    
+    # beta_hat = unname(lm(y_s ~  t(apply(X_s, 1, function(k) k 
+    # - colSums(X_s * d1_s) / N)), weights = d1_s)$coefficients[-1])
+    
+    y_HT = sum(y_s * d1_s)
+    
+    y_diff = drop(colSums(X) %*% beta + sum((y_s - drop(X_s %*% beta)) * d1_s))
+    
+    y_GREG = drop(colSums(X) %*% beta_hat + sum((y_s - drop(X_s %*% beta_hat)) * d1_s))
+    
+    library(glmnet)
+    if(simnum == 1){
+      if(wls){
+        cv_model <- cv.glmnet(X_s, y_s, weights = d1_s)
+      }else{
+        cv_model <- cv.glmnet(X_s, y_s)
+      }
+    } 
+    
+    #find optimal lambda value that minimizes test MSE
+    best_lambda <- cv_model$lambda.min
+    best_lambda
+    
+    if(wls){
+      best_model <- glmnet(X_s, y_s, weights = d1_s, lambda = best_lambda)
+    }else{
+      best_model <- glmnet(X_s, y_s, lambda = best_lambda)
+    }
+    beta_hat_Lasso = as.vector(coef(best_model))[-1]
+    
+    y_Lasso = drop(colSums(X) %*% beta_hat_Lasso + sum((y_s - drop(X_s %*% beta_hat_Lasso)) * d1_s))
+    
+    # y_model = drop(colSums(X) %*% beta_hat)
+    
+    y_debiased_vec = NULL
+    y_debiased_Lasso_vec = NULL
+    e_s_vec = NULL
+    e_s_vec_Lasso = NULL
+    for(k in 1:20){
+      # for(k in 1){
+      set.seed(k)
+      SubIndex = sample(1:N, size = round(N / 2), replace = FALSE)
+      
+      Index_sub1 = Index[Index %in% SubIndex]
+      Index_sub2 = Index[!(Index %in% SubIndex)]
+      # Index_sub1 = Index[sample(1:n, size = m, replace = FALSE)]
+      # Index_sub2 = Index[!(Index %in% Index_sub1)]
+      
+      y_s1 = y[Index_sub1]
+      X_s1 = X[Index_sub1, ,drop = F]
+      d1_s1 = d1[Index_sub1]
+      if(wls){
+        lm_obj1 = lm(y_s1 ~  0 +X_s1, weights = d1_s1)
+      }else{
+        lm_obj1 = lm(y_s1 ~  0 +X_s1)
+      }
+      beta_hat1 = lm_obj1$coefficients
+      
+      y_s2 = y[Index_sub2]
+      X_s2 = X[Index_sub2, ,drop = F]
+      d1_s2 = d1[Index_sub2]
+      if(wls){
+        lm_obj2 = lm(y_s2 ~ 0 +  X_s2, weights = d1_s2)
+      }else{
+        lm_obj2 = lm(y_s2 ~ 0 +  X_s2)
+      }
+      beta_hat2 = lm_obj2$coefficients
+      
+      # y_debiased = drop(colSums(X) %*% beta_hat + sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1) 
+      # + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * d1_s2))
+      
+      # y_debiased = drop(colSums(X) %*% (sum(d1_s2) / sum(d1_s) * beta_hat1 + sum(d1_s1) / sum(d1_s) * beta_hat2) + 
+      #                     sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1) + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * d1_s2))
+      
+      t1_hat = colSums(X[SubIndex, ]) %*% beta_hat2 + sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1)
+      
+      y_debiased = drop(colSums(X[SubIndex, ]) %*% beta_hat2 + colSums(X[-SubIndex, ]) %*% beta_hat1 +
+                          sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1) + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * d1_s2))
+      
+      # y_debiased = drop(colSums(X[SubIndex, ]) %*% beta_hat2 +
+      #                     sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1))*2
+      
+      
+      e_s_tmp = ifelse(Index %in% Index_sub1, y_s - X_s %*% beta_hat2, y_s - X_s %*% beta_hat1)
+      e_s_vec = rbind(e_s_vec, e_s_tmp)
+      
+      if(is.na(y_debiased)) stop()
+      
+      y_debiased_vec = c(y_debiased_vec, y_debiased)
+      
+      if(simnum == 1){
+        if(wls){
+          cv_model <- cv.glmnet(X_s1, y_s1, weights = d1_s1)
+        }else{
+          cv_model <- cv.glmnet(X_s1, y_s1)
+        }
+      } 
+      
+      #find optimal lambda value that minimizes test MSE
+      best_lambda1 <- cv_model$lambda.min
+      best_lambda1
+      
+      if(wls){
+        best_model1 <- glmnet(X_s1, y_s1, weights = d1_s1, lambda = best_lambda1)
+      }else{
+        best_model1 <- glmnet(X_s1, y_s1, lambda = best_lambda1)
+      }
+      beta_hat1 = as.vector(coef(best_model1))[-1]
+      
+      if(simnum == 1){
+        if(wls){
+          cv_model <- cv.glmnet(X_s2, y_s2, weights = d1_s2)
+        }else{
+          cv_model <- cv.glmnet(X_s2, y_s2)
+        }
+      } 
+      
+      #find optimal lambda value that minimizes test MSE
+      best_lambda2 <- cv_model$lambda.min
+      best_lambda2
+      
+      if(wls){
+        best_model2 <- glmnet(X_s2, y_s2, weights = d1_s2, lambda = best_lambda2)
+      }else{
+        best_model2 <- glmnet(X_s2, y_s2, lambda = best_lambda2)
+      }
+      beta_hat2 = as.vector(coef(best_model2))[-1]
+      
+      y_debiased_Lasso = drop(colSums(X[SubIndex, ]) %*% beta_hat2 + colSums(X[-SubIndex, ]) %*% beta_hat1 +
+                                sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1) + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * d1_s2))
+      
+      e_s_tmp_Lasso = ifelse(Index %in% Index_sub1, y_s - X_s %*% beta_hat2, y_s - X_s %*% beta_hat1)
+      e_s_vec_Lasso = rbind(e_s_vec_Lasso, e_s_tmp_Lasso)
+      
+      y_debiased_Lasso_vec = c(y_debiased_Lasso_vec, y_debiased_Lasso)
+    }
+    
+    e_s_tmp = colMeans(e_s_vec)
+    e_s_tmp_Lasso = colMeans(e_s_vec_Lasso)
+    
+    y_debiased = mean(y_debiased_vec)
+    
+    y_debiased_Lasso = mean(y_debiased_Lasso_vec)
+    
+    # y_unbiased = drop(colSums(X) %*% beta_hat1 + sum((y_s1 - drop(X_s1 %*% beta_hat1))) 
+    #                   + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * 2))
+    
+    
+    sigma_HT = sqrt(drop(t(y_s)  %*% Omega %*% y_s))
+    
+    # tmp <- unclass(by(y_s, d1_s, sd))
+    # attr(tmp, "call") <- NULL
+    # tmp <- tmp[4:1]
+    # sqrt(sum(len^2 * (1 - n_h / len) / n_h * tmp^2))
+    
+    e_s = y_s - X_s %*% beta
+    sigma_diff = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
+    
+    # sum(sapply(1:n, function(k) sapply(1:n, function(l) 
+    #   ifelse(k == l, 1 - n / N, 1 - n / (n - 1) * (N - 1) / N) * e_s[k] * e_s[l] * N / n * N / n  ))) / N^2
+    
+    e_s = y_s - X_s %*% beta_hat
+    sigma_GREG = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
+    
+    e_s = y_s - X_s %*% beta_hat_Lasso
+    sigma_Lasso = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
+    
+    sigma_Debiased = sqrt(drop(t(e_s_tmp)  %*% Omega %*% e_s_tmp))
+    # e_s1 = ifelse(Index %in% Index_sub1, y_s - X_s %*% lm_obj2$coefficients, 0)
+    # e_s2 = ifelse(Index %in% Index_sub2, y_s - X_s %*% lm_obj1$coefficients, 0)
+    # sigma_Debiased = sqrt(drop((t(e_s1)  %*% Omega %*% e_s1 + t(e_s2)  %*% Omega %*% e_s2)))
+    
+    sigma_Debiased_Lasso = sqrt(drop(t(e_s_tmp_Lasso)  %*% Omega %*% e_s_tmp_Lasso))
+    
+    y_res = c(HT = y_HT, Diff = y_diff, GREG = y_GREG, Lasso = y_Lasso, 
+              SS = y_debiased, SSLasso = y_debiased_Lasso)
+    
+    res = rbind(res, y_res)
+    
+    sigma_res = c(HT = sigma_HT, Diff = sigma_diff, GREG = sigma_GREG, Lasso = sigma_Lasso,
+                  SS = sigma_Debiased, SSLasso = sigma_Debiased_Lasso)
+    
+    res2 = rbind(res2, sigma_res)
+    
+    res3 = rbind(res3, ifelse(abs(y_res - t_y) > 1.96 * sigma_res, 0, 1))
+  }
+  
+  BIAS = colMeans(res - t_y)
+  SE = apply(res, 2, function(x) sqrt(var(x) * (length(x)-1)/length(x) ))
+  RMSE = apply(res - t_y, 2, function(x) sqrt(mean(x^2)))
+  
+  # colMeans(res)
+  tmpdf21 = cbind(BIAS, SE, RMSE)
+  xtable(cbind(BIAS, SE, RMSE), digits = 3, caption = "Summary of point estimation")
+  
+  BIAS2 = colMeans(res2 - rep(SE, each = nrow(res2)))
+  SE2 = apply(res2, 2, function(x) sqrt(var(x) * (length(x)-1)/length(x) ))
+  RMSE2 = apply(res2 - rep(SE, each = nrow(res2)), 2, function(x) sqrt(mean(x^2)))
+  
+  # cbind(BIAS2, REl_BIAS = BIAS2 / SE)
+  tmpdf22 = cbind(RB = BIAS2 / SE, CR = colMeans(res3))
+  xtable(cbind(RB = BIAS2 / SE, CR = colMeans(res3)), digits = c(0,4,3), caption = "Summary of variance estimation")
+  
+  SE_res = cbind(SE_res, SE)
+  RMSE_res = cbind(RMSE_res, RMSE)
+}
+
+# matplot(t(RMSE_res[-c(1,4,6),]), type = "l", col = hcl.colors(3, "Temps"), lty = 1, lwd = 2, xlab = "r", xaxt = "n", ylab = "", main = "solid line = RMSE, dashed line = SE")
+# axis(1, at = 1:11, labels = seq_r, cex.axis = 0.7)
+# matlines(t(SE_res[-c(1,4,6),]), type = "l", col = hcl.colors(3, "Temps"), lty = 2, lwd = 2)
+# legend("bottomleft", rownames(RMSE_res[-c(1,4,6),]), col = hcl.colors(3, "Temps"), lty = 1)
+

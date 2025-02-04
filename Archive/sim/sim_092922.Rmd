@@ -1,0 +1,282 @@
+---
+title: "Simulation study for debiased learning"
+header-includes:
+  - \usepackage{statstyle}
+output:
+  pdf_document: 
+    keep_tex: true
+---
+
+```{r setup, include=FALSE}
+N = 2000
+n = 100
+m = 50
+p = 40
+s = 20
+
+set.seed(2)
+
+# X = matrix(rnorm(N * p, 2, 1), nr = N, nc = p)
+
+library(mvtnorm)
+
+ar1_cor <- function(n, rho) {
+  exponent <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) - 
+                    (1:n - 1))
+  rho^exponent
+}
+
+X = rmvnorm(n = N, rep(0, p), ar1_cor(p, 0.2))
+X = pnorm(X)
+# X = scale(X, T, T)
+
+beta = c(rep(1, s), rep(0, p - s))
+e = rnorm(N, 0, 1)
+y = X %*% beta + e 
+t_y = sum(y)
+
+# pi1 = e^2 / sum(e^2) * n
+
+r = 0.75
+
+ratio = (1 - r) / r
+z = rnorm(n = N, 0, sqrt(ratio)) + e
+# z = rnorm(n = N, 0, 1)
+z_sorted_idx = order(z)
+len = round(N / 4)
+```
+
+# Simulation setup
+
+Let $A$ be a sample of size $n =$ `r n` selected from the population $U$ of size $N =$ `r N`. Let $y$ be a variable of interest and we try to estimate the population total $t_y = \sum_{i \in U} y_i$ and $\bf x_{i}$ of size $p$ be the auxiliary variables associated with $y$ where $x_{ij} \iid N(2, 1)$. Suppose the following superpopulation model holds
+$$
+y_i = \bf x_i^T \bf \beta + \varepsilon_i, \quad \varepsilon_i \iid N(0,\sigma^2), i = 1, \cdots, N
+$$
+where $\sigma^2 = 1$ and $\bf \beta = (1, \cdots, 1, 0, \cdots, 0)$ with $s =$ `r s` 1s and $p - s =$ `r p - s` 0s. We assume the samples are drawn from the informative stratified sampling.
+    $$
+    Z_j \sim Z_j^* + \varepsilon_j, \quad Z^* \sim N\pa{0, \frac{1 - r}{r}}, j \in U, r \in (0, 1)
+    $$
+    The finite population data $\set{y_j, x_j, z_j}_{j \in U}$ are sorted by $z_j$ so that the $n/4$ smallest $z$ values are in stratum one and the next $n/4$ smallest value are in stratum two and so forth. Within each stratum, simple random samples are collected with size
+    $$
+    n_1 = 0.15n, n_2 = 0.20n, n_3 = 0.30n, n_4 = 0.35n
+    $$
+The larger $r$ is, the more informative sampling design we have. We consider the following estimators. Here, we set $r = 0.75$.
+
+We consider the following estimators.
+\begin{itemize}
+  \item Difference estimator
+  $$
+  \hat t_y = \pa{\sum_{i \in U}\bf x_i}^T \bf \beta + \sum_{i \in A} d_i \pa{y_i - \bf x_i^T \bf \beta}
+  $$
+  \item GREG estimator
+  $$
+  \hat t_y = \pa{\sum_{i \in U}\bf x_i}^T \hat{\bf \beta} + \sum_{i \in A} d_i \pa{y_i - \bf x_i^T \hat{\bf \beta}}
+  $$
+  where $\hat {\bf \beta} = \pa{\sum_{i \in A} d_i \bf x_i \bf x_i^T}^{-1} \pa{\sum_{i \in A} d_i \bf x_i y_i}$
+  
+  \item Model-based estimator
+  $$
+  \hat t_y = \pa{\sum_{i \in U}\bf x_i}^T \hat{\bf \beta}
+  $$
+  
+  \item Debiased GREG estimator(Proposed)
+    $$
+  \hat t_y = \pa{\sum_{i \in U}\bf x_i}^T \pa{ \frac{\sum_{i \in A_2}d_i}{\sum_{i \in A}d_i} \hat{\bf \beta}_1 + \frac{\sum_{i \in A_1}d_i}{\sum_{i \in A}d_i} \hat{\bf \beta}_2} + \sum_{i \in A_1} d_i \pa{y_i - \bf x_i^T \hat{\bf \beta}_2} + \sum_{i \in A_2} d_i \pa{y_i - \bf x_i^T \hat{\bf \beta}_1}
+  $$
+  where $A_1$ and $A_2$ are the subsamples of $A$ with $A_1 \bigcup A_2 = A$, and $\hat {\bf \beta}_1$ and $\hat {\bf \beta}_2$ are the regression coefficients built upon the sample $A_1$ and sample $A_2$ respectively.
+  \item Design unbiased GREG estimator(Sande, 2021)
+  $$
+  \hat t_y = \pa{\sum_{i \in U}\bf x_i}^T \hat{\bf \beta}_1 + \sum_{i \in A_1} \pa{y_i - \bf x_i^T \hat{\bf \beta}_1} + \sum_{i \in A_2} \frac{1}{P(i \in A_2 | i \in A)} \pa{y_i - \bf x_i^T \hat{\bf \beta}_1}
+  $$
+  
+  %\item LASSO estimator
+  %\item Debiased Lasso estimator(Zhang \& Zhang, 2014)
+\end{itemize}
+
+```{r include=FALSE}
+res = NULL
+res2 = NULL
+res3 = NULL
+SIMNUM = 500
+X = cbind(1, X)
+beta = c(0, beta)
+for(simnum in 1:SIMNUM){
+  print(simnum)
+  # set.seed(simnum)
+  
+  Index = rep(0, n)
+  d1 = rep(0, N)
+  n_h = c(15, 20, 30, 35) / 100 * n
+  cumn_h = cumsum(n_h)
+  for (i in 1:4){
+    Idx_z = (len * (i - 1)+ 1): (len * i)
+    Idx = z_sorted_idx[Idx_z]
+    d1[Idx] = len / n_h[i]
+    from = ifelse(i == 1, 0, cumn_h[i-1])
+    Index[(from + 1) : cumn_h[i]] = sample(Idx, size = n_h[i], replace = FALSE)
+    
+  }
+  
+  
+  # Index = sample(1:N, size = n, replace = FALSE, prob = pi1)
+  y_s = y[Index]
+  X_s = X[Index, ,drop = F]
+  d1_s = d1[Index]
+  lm_obj = lm(y_s ~  0 + X_s, weights = d1_s)
+  beta_hat = lm_obj$coefficients
+  #drop(solve(t(X_s) %*% diag(d1_s) %*% X_s, t(X_s) %*% diag(d1_s) %*% y_s))
+  
+  # beta_hat = unname(lm(y_s ~  t(apply(X_s, 1, function(k) k 
+  # - colSums(X_s * d1_s) / N)), weights = d1_s)$coefficients[-1])
+  
+  y_HT = sum(y_s * d1_s)
+  
+  y_diff = drop(colSums(X) %*% beta + sum((y_s - drop(X_s %*% beta)) * d1_s))
+  
+  y_GREG = drop(colSums(X) %*% beta_hat + sum((y_s - drop(X_s %*% beta_hat)) * d1_s))
+  
+  library(glmnet)
+  if(simnum == 1) cv_model <- cv.glmnet(X_s, y_s, weights = d1_s)
+  
+  #find optimal lambda value that minimizes test MSE
+  best_lambda <- cv_model$lambda.min
+  best_lambda
+  
+  best_model <- glmnet(X_s, y_s, weights = d1_s, lambda = best_lambda)
+  beta_hat2 = as.vector(coef(best_model))[-1]
+  
+  y_Lasso = drop(colSums(X) %*% beta_hat2 + sum((y_s - drop(X_s %*% beta_hat2)) * d1_s))
+  
+  # y_model = drop(colSums(X) %*% beta_hat)
+  
+  y_debiased_vec = NULL
+  e_s_vec = NULL
+  for(k in 1:10){
+    Index_sub1 = Index[sample(1:n, size = m, replace = FALSE)]
+    Index_sub2 = Index[!(Index %in% Index_sub1)]
+    
+    y_s1 = y[Index_sub1]
+    X_s1 = X[Index_sub1, ,drop = F]
+    d1_s1 = d1[Index_sub1]
+    lm_obj1 = lm(y_s1 ~  0 +X_s1, weights = d1_s1)
+    beta_hat1 = lm_obj1$coefficients
+    
+    y_s2 = y[Index_sub2]
+    X_s2 = X[Index_sub2, ,drop = F]
+    d1_s2 = d1[Index_sub2]
+    lm_obj2 = lm(y_s2 ~ 0 +  X_s2, weights = d1_s2)
+    beta_hat2 = lm_obj2$coefficients
+    
+    e_s_tmp = ifelse(Index %in% Index_sub1, y_s - X_s %*% beta_hat2, y_s - X_s %*% beta_hat1)
+    
+    e_s_vec = rbind(e_s_vec, e_s_tmp)
+    
+    # y_debiased = drop(colSums(X) %*% beta_hat + sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1) 
+    # + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * d1_s2))
+    
+    y_debiased = drop(colSums(X) %*% (sum(d1_s2) / sum(d1_s) * beta_hat1 + sum(d1_s1) / sum(d1_s) * beta_hat2) + 
+                        sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1) + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * d1_s2))
+    
+    y_debiased_vec = c(y_debiased_vec, y_debiased)
+  }
+  e_s_tmp = colMeans(e_s_vec)
+  
+  y_debiased = mean(y_debiased_vec)
+  
+  y_debiased_Lasso_vec = NULL
+  for(k in 1:10){
+    Index_sub1 = Index[sample(1:n, size = m, replace = FALSE)]
+    Index_sub2 = Index[!(Index %in% Index_sub1)]
+
+    y_s1 = y[Index_sub1]
+    X_s1 = X[Index_sub1, ,drop = F]
+    d1_s1 = d1[Index_sub1]
+
+    if(simnum == 1) cv_model <- cv.glmnet(X_s1, y_s1, weights = d1_s1)
+
+    #find optimal lambda value that minimizes test MSE
+    best_lambda1 <- cv_model$lambda.min
+    best_lambda1
+
+    best_model1 <- glmnet(X_s1, y_s1, weights = d1_s1, lambda = best_lambda1)
+    beta_hat1 = as.vector(coef(best_model1))[-1]
+
+    y_s2 = y[Index_sub2]
+    X_s2 = X[Index_sub2, ,drop = F]
+    d1_s2 = d1[Index_sub2]
+
+    if(simnum == 1) cv_model <- cv.glmnet(X_s2, y_s2, weights = d1_s2)
+
+    #find optimal lambda value that minimizes test MSE
+    best_lambda2 <- cv_model$lambda.min
+    best_lambda2
+
+    best_model2 <- glmnet(X_s2, y_s2, weights = d1_s2, lambda = best_lambda2)
+    beta_hat2 = as.vector(coef(best_model2))[-1]
+
+    y_debiased_Lasso = drop(colSums(X) %*% (sum(d1_s2) / sum(d1_s) * beta_hat1 + sum(d1_s1) / sum(d1_s) * beta_hat2) +
+                        sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1) + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * d1_s2))
+
+    y_debiased_Lasso_vec = c(y_debiased_Lasso_vec, y_debiased_Lasso)
+  }
+  
+  y_debiased_Lasso = mean(y_debiased_Lasso_vec)
+  
+    Omega = matrix(1 - n / (n-1) * (N-1) / N, nr = n, nc = n)
+  diag(Omega) = 1 - n / N
+  
+  
+  sigma_HT = sqrt(drop(t(y_s)  %*% Omega %*% y_s * N^2 / n^2))
+  
+  e_s = y_s - X_s %*% beta
+  sigma_diff = sqrt(drop(t(e_s)  %*% Omega %*% e_s * N^2 / n^2))
+  
+  # sum(sapply(1:n, function(k) sapply(1:n, function(l) 
+  #   ifelse(k == l, 1 - n / N, 1 - n / (n - 1) * (N - 1) / N) * e_s[k] * e_s[l] * N / n * N / n  ))) / N^2
+  
+  e_s = y_s - X_s %*% beta_hat
+  sigma_GREG = sqrt(drop(t(e_s)  %*% Omega %*% e_s * N^2 / n^2))
+
+sigma_Debiased = sqrt(drop(t(e_s_tmp)  %*% Omega %*% e_s_tmp * N^2 / n^2))
+
+
+  # y_unbiased = drop(colSums(X) %*% beta_hat1 + sum((y_s1 - drop(X_s1 %*% beta_hat1))) 
+  #                   + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * 2))
+  
+  res = rbind(res, c(HT = y_HT, Diff = y_diff, GREG = y_GREG, Lasso = y_Lasso, 
+                     Debiased = y_debiased, Lasso_Debiased = y_debiased_Lasso))
+  
+  res2 = rbind(res2, c(HT = sigma_HT, Diff = sigma_diff, GREG = sigma_GREG, Debiased = sigma_Debiased))
+  
+}
+
+BIAS = colMeans(res - t_y)
+SE = apply(res, 2, function(x) sqrt(var(x) * (length(x)-1)/length(x) ))
+RMSE = apply(res - t_y, 2, function(x) sqrt(mean(x^2)))
+```
+
+```{r}
+cbind(BIAS, SE, RMSE)
+```
+
+```{r}
+BIAS2 = colMeans(res2 - rep(SE[c(1,2,3,5)], each = nrow(res2)))
+SE2 = apply(res2, 2, function(x) sqrt(var(x) * (length(x)-1)/length(x) ))
+RMSE2 = apply(res2 - rep(SE[c(1,2,3,5)], each = nrow(res2)), 2, function(x) sqrt(mean(x^2)))
+
+cbind(BIAS2, SE2, RMSE2, REl_BIAS = BIAS2 / SE[c(1,2,3,5)])
+cbind(BIAS2, REl_BIAS = BIAS2 / SE[c(1,2,3,5)])
+```
+
+
+```{r}
+library(ggplot2)
+ggplot() + 
+  geom_density(data = data.frame(res), aes(x = Diff, fill = "Diff"), alpha = 0.3) +
+  geom_density(data = data.frame(res), aes(x = GREG, fill = "GREG"), alpha = 0.3) + 
+  geom_density(data = data.frame(res), aes(x = Debiased, fill = "Debiased"), alpha = 0.3) + 
+  geom_density(data = data.frame(res), aes(x = Lasso, fill = "Lasso"), alpha = 0.3) + 
+  geom_density(data = data.frame(res), aes(x = Lasso_Debiased, fill = "Lasso_Debiased"), alpha = 0.3) +
+  geom_vline(xintercept = t_y, col = "red")
+```
+
