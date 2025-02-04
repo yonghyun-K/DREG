@@ -3,7 +3,7 @@ n = 500
 m = n / 2
 p = 40
 s = 5
-wls = F
+wls = T
 
 set.seed(2)
 
