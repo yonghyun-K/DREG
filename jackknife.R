@@ -67,8 +67,9 @@ beta = c(0, beta)
 cl <- makeCluster(cores)
 registerDoParallel(cl)
 
-seq_K = round(c(2^(1:floor(log2(n))), n))
+# seq_K = round(c(2^(1:floor(log2(n))), n))
 # seq_K = round(c(2, n))
+seq_K = 2
 for(K in seq_K){
   registerDoRNG(seed = 11)
   print(K)
@@ -177,8 +178,10 @@ r = 0.75 # To be changed
     
     y_debiased_vec = NULL
     y_debiased_Lasso_vec = NULL
-    e_s_vec = numeric(K)
-    e_s_vec_Lasso = numeric(K)
+    e_s_vec = list()
+    e_s_vec_Lasso = list()
+    # e_s_vec = numeric(n)
+    # e_s_vec_Lasso = numeric(n)
     
     shuffled <- sample(1:N)
     
@@ -232,8 +235,9 @@ r = 0.75 # To be changed
       
       
       # e_s_tmp = ifelse(Index %in% Index_sub1, y_s - X_s %*% beta_hat2, y_s - X_s %*% beta_hat1)
-      e_s_tmp = y_s - X_s %*% beta_hat2
-      e_s_vec = e_s_vec + e_s_tmp
+      e_s_tmp = drop(y_s1 - X_s1 %*% beta_hat2)
+      e_s_vec = append(e_s_vec, list(e_s_tmp))
+      # e_s_vec = e_s_vec + e_s_tmp
       
       if(is.na(y_debiased)) stop()
       
@@ -281,14 +285,16 @@ r = 0.75 # To be changed
                                 sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1))
       
       # e_s_tmp_Lasso = ifelse(Index %in% Index_sub1, y_s - X_s %*% beta_hat2, y_s - X_s %*% beta_hat1)
-      e_s_tmp_Lasso = y_s - X_s %*% beta_hat2
-      e_s_vec_Lasso = e_s_vec_Lasso + e_s_tmp_Lasso
+      
+      e_s_tmp_Lasso = drop(y_s1 - X_s1 %*% beta_hat2)
+      e_s_vec_Lasso = append(e_s_vec_Lasso, list(e_s_tmp_Lasso))
+      # e_s_vec_Lasso = e_s_vec_Lasso + e_s_tmp_Lasso
       
       y_debiased_Lasso_vec = c(y_debiased_Lasso_vec, y_debiased_Lasso)
     }
     
-    e_s_tmp = e_s_vec / K
-    e_s_tmp_Lasso = e_s_vec_Lasso / K
+    # e_s_tmp = e_s_vec / K
+    # e_s_tmp_Lasso = e_s_vec_Lasso / K
     
     y_debiased = sum(y_debiased_vec)
     
@@ -317,12 +323,19 @@ r = 0.75 # To be changed
     e_s = y_s - X_s %*% beta_hat_Lasso
     sigma_Lasso = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
     
-    sigma_Debiased = sqrt(drop(t(e_s_tmp)  %*% Omega %*% e_s_tmp))
+    # sigma_Debiased = sqrt(drop(t(e_s_tmp)  %*% Omega %*% e_s_tmp))
+    sigma_Debiased = sqrt(sum(mapply(function(i, e){t(e) %*% 
+        Omega[which(Index %in% i), which(Index %in% i)] %*% e}, 
+           SubIndex_list, e_s_vec)))
+    
     # e_s1 = ifelse(Index %in% Index_sub1, y_s - X_s %*% lm_obj2$coefficients, 0)
     # e_s2 = ifelse(Index %in% Index_sub2, y_s - X_s %*% lm_obj1$coefficients, 0)
     # sigma_Debiased = sqrt(drop((t(e_s1)  %*% Omega %*% e_s1 + t(e_s2)  %*% Omega %*% e_s2)))
-    
-    sigma_Debiased_Lasso = sqrt(drop(t(e_s_tmp_Lasso)  %*% Omega %*% e_s_tmp_Lasso))
+  
+    # sigma_Debiased_Lasso = sqrt(drop(t(e_s_tmp_Lasso)  %*% Omega %*% e_s_tmp_Lasso))
+    sigma_Debiased_Lasso = sqrt(sum(mapply(function(i, e){t(e) %*% 
+        Omega[which(Index %in% i), which(Index %in% i)] %*% e}, 
+        SubIndex_list, e_s_vec_Lasso)))
     
     y_res = c(HT = y_HT, Diff = y_diff, GREG = y_GREG, Lasso = y_Lasso, 
               SS = y_debiased, SSLasso = y_debiased_Lasso)
@@ -379,6 +392,8 @@ r = 0.75 # To be changed
 
 xtable(cbind(BIAS = BIAS_res[,1], SE = SE_res[,1], RMSE = RMSE_res[,1]) )
 xtable(cbind(BIAS = BIAS_res[,length(seq_K)], SE = SE_res[,length(seq_K)], RMSE = RMSE_res[,length(seq_K)]) )
+
+xtable(cbind(RB = RB_res[,1], CR = CR_res[,1]) )
 
 matplot(t(RMSE_res[-c(1, 2),]), type = "l", col = hcl.colors(4, "Temps"), lty = 1, lwd = 2, ylim = c(min(SE_res[-c(1, 2),]), max(RMSE_res[-c(1, 2),])),
         xlab = "K", xaxt = "n", ylab = "", main = "solid line = RMSE, dashed line = SE")
