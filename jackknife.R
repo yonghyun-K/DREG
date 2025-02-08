@@ -1,5 +1,5 @@
 N = 2000
-n = 500
+n = 140
 p = 40
 s = 5
 # K = 140
@@ -68,8 +68,8 @@ cl <- makeCluster(cores)
 registerDoParallel(cl)
 
 # seq_K = round(c(2^(1:floor(log2(n))), n))
-# seq_K = round(c(2, n))
-seq_K = 2
+seq_K = round(c(2, N))
+# seq_K = 2
 for(K in seq_K){
   registerDoRNG(seed = 11)
   print(K)
@@ -371,7 +371,7 @@ r = 0.75 # To be changed
   tmpdf21 = cbind(BIAS, SE, RMSE)
   xtable(cbind(BIAS, SE, RMSE), digits = 3, caption = "Summary of point estimation")
   
-  BIAS2 = colMeans(res2 - rep(SE, each = nrow(res2)))
+  BIAS2 = colMeans(res2^2 - rep(SE^2, each = nrow(res2)))
   SE2 = apply(res2, 2, function(x) sqrt(var(x) * (length(x)-1)/length(x) ))
   RMSE2 = apply(res2 - rep(SE, each = nrow(res2)), 2, function(x) sqrt(mean(x^2)))
   
@@ -382,7 +382,7 @@ r = 0.75 # To be changed
   SE_res = cbind(SE_res, SE)
   RMSE_res = cbind(RMSE_res, RMSE)
   BIAS_res = cbind(BIAS_res, BIAS)
-  RB_res = cbind(RB_res, BIAS2 / SE)
+  RB_res = cbind(RB_res, BIAS2 / SE^2)
   CR_res = cbind(CR_res, colMeans(res3))
 }
   stopCluster(cl)
