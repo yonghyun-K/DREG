@@ -68,8 +68,8 @@ cl <- makeCluster(cores)
 registerDoParallel(cl)
 
 # seq_K = round(c(2^(1:floor(log2(n))), n))
-seq_K = round(c(2, N))
-# seq_K = 2
+# seq_K = round(c(2, N))
+seq_K = 2
 for(K in seq_K){
   registerDoRNG(seed = 11)
   print(K)
@@ -236,6 +236,7 @@ r = 0.75 # To be changed
       
       # e_s_tmp = ifelse(Index %in% Index_sub1, y_s - X_s %*% beta_hat2, y_s - X_s %*% beta_hat1)
       e_s_tmp = drop(y_s1 - X_s1 %*% beta_hat2)
+      names(e_s_tmp) = Index_sub1
       e_s_vec = append(e_s_vec, list(e_s_tmp))
       # e_s_vec = e_s_vec + e_s_tmp
       
@@ -287,6 +288,7 @@ r = 0.75 # To be changed
       # e_s_tmp_Lasso = ifelse(Index %in% Index_sub1, y_s - X_s %*% beta_hat2, y_s - X_s %*% beta_hat1)
       
       e_s_tmp_Lasso = drop(y_s1 - X_s1 %*% beta_hat2)
+      names(e_s_tmp_Lasso) = Index_sub1
       e_s_vec_Lasso = append(e_s_vec_Lasso, list(e_s_tmp_Lasso))
       # e_s_vec_Lasso = e_s_vec_Lasso + e_s_tmp_Lasso
       
@@ -323,19 +325,22 @@ r = 0.75 # To be changed
     e_s = y_s - X_s %*% beta_hat_Lasso
     sigma_Lasso = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
     
+    # SubIndex_unlist = unlist(SubIndex_list)
+    # e_s = unlist(sapply(Index, function(i) e_s_vec[SubIndex_unlist == i]))
     # sigma_Debiased = sqrt(drop(t(e_s_tmp)  %*% Omega %*% e_s_tmp))
-    sigma_Debiased = sqrt(sum(mapply(function(i, e){t(e) %*% 
-        Omega[which(Index %in% i), which(Index %in% i)] %*% e}, 
-           SubIndex_list, e_s_vec)))
+    e_s = unlist(e_s_vec)[as.character(Index)]
+    sigma_Debiased = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
+    
+    # cor(y_s - X_s %*% beta_hat, e_s)
     
     # e_s1 = ifelse(Index %in% Index_sub1, y_s - X_s %*% lm_obj2$coefficients, 0)
     # e_s2 = ifelse(Index %in% Index_sub2, y_s - X_s %*% lm_obj1$coefficients, 0)
     # sigma_Debiased = sqrt(drop((t(e_s1)  %*% Omega %*% e_s1 + t(e_s2)  %*% Omega %*% e_s2)))
   
     # sigma_Debiased_Lasso = sqrt(drop(t(e_s_tmp_Lasso)  %*% Omega %*% e_s_tmp_Lasso))
-    sigma_Debiased_Lasso = sqrt(sum(mapply(function(i, e){t(e) %*% 
-        Omega[which(Index %in% i), which(Index %in% i)] %*% e}, 
-        SubIndex_list, e_s_vec_Lasso)))
+    # e_s = unlist(sapply(Index, function(i) e_s_vec_Lasso[SubIndex_unlist == i]))
+    e_s = unlist(e_s_vec_Lasso)[as.character(Index)]
+    sigma_Debiased_Lasso = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
     
     y_res = c(HT = y_HT, Diff = y_diff, GREG = y_GREG, Lasso = y_Lasso, 
               SS = y_debiased, SSLasso = y_debiased_Lasso)
