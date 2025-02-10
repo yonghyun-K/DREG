@@ -68,8 +68,9 @@ cl <- makeCluster(cores)
 registerDoParallel(cl)
 
 # seq_K = round(c(2^(1:floor(log2(n))), n))
+seq_K = round(c(2, n))
 # seq_K = round(c(2, N))
-seq_K = 2
+# seq_K = 2
 for(K in seq_K){
   registerDoRNG(seed = 11)
   print(K)
@@ -164,22 +165,31 @@ r = 0.75 # To be changed
     #find optimal lambda value that minimizes test MSE
     best_lambda <- cv_model$lambda.min
     best_lambda
-    
     if(wls){
       best_model <- glmnet(X_s, y_s, weights = d1_s, lambda = best_lambda)
     }else{
       best_model <- glmnet(X_s, y_s, lambda = best_lambda)
     }
     beta_hat_Lasso = as.vector(coef(best_model))[-1]
-    
     y_Lasso = drop(colSums(X) %*% beta_hat_Lasso + sum((y_s - drop(X_s %*% beta_hat_Lasso)) * d1_s))
+    
+    X_s_refit = X_s[, beta_hat_Lasso != 0, drop = F]
+    if(wls){
+      refit_model = lm(y_s ~  0 + X_s_refit, weights = d1_s)
+    }else{
+      refit_model = lm(y_s ~  0 + X_s_refit)
+    }
+    beta_hat_refit = refit_model$coefficients
+    y_Lasso2 = drop(colSums(X[, beta_hat_Lasso != 0, drop = F]) %*% beta_hat_refit + sum((y_s - drop(X_s_refit %*% beta_hat_refit)) * d1_s))
     
     # y_model = drop(colSums(X) %*% beta_hat)
     
     y_debiased_vec = NULL
     y_debiased_Lasso_vec = NULL
+    y_debiased_Lasso_vec2 = NULL
     e_s_vec = list()
     e_s_vec_Lasso = list()
+    e_s_vec_Lasso2 = list()
     # e_s_vec = numeric(n)
     # e_s_vec_Lasso = numeric(n)
     
@@ -293,14 +303,30 @@ r = 0.75 # To be changed
       # e_s_vec_Lasso = e_s_vec_Lasso + e_s_tmp_Lasso
       
       y_debiased_Lasso_vec = c(y_debiased_Lasso_vec, y_debiased_Lasso)
+      
+      X_s_refit2 = X_s2[, beta_hat_Lasso != 0, drop = F]
+      if(wls){
+        refit_model = lm(y_s2 ~  0 + X_s_refit2, weights = d1_s2)
+      }else{
+        refit_model = lm(y_s2 ~  0 + X_s_refit2)
+      }
+      beta_hat_refit2 = refit_model$coefficients
+      y_debiased_Lasso2 = drop(colSums(X[SubIndex, beta_hat_Lasso != 0, drop = F]) %*% beta_hat_refit2 + 
+         sum((y_s1 - drop(X_s1[,beta_hat_Lasso != 0, drop = F] %*% beta_hat_refit2)) * d1_s1))
+      
+      e_s_tmp_Lasso2 = drop(y_s1 - X_s1[,beta_hat_Lasso != 0, drop = F] %*% beta_hat_refit2)
+      names(e_s_tmp_Lasso2) = Index_sub1
+      e_s_vec_Lasso2 = append(e_s_vec_Lasso2, list(e_s_tmp_Lasso2))
+      
+      y_debiased_Lasso_vec2 = c(y_debiased_Lasso_vec2, y_debiased_Lasso2)
     }
     
     # e_s_tmp = e_s_vec / K
     # e_s_tmp_Lasso = e_s_vec_Lasso / K
     
     y_debiased = sum(y_debiased_vec)
-    
     y_debiased_Lasso = sum(y_debiased_Lasso_vec)
+    y_debiased_Lasso2 = sum(y_debiased_Lasso_vec2)
     
     # y_unbiased = drop(colSums(X) %*% beta_hat1 + sum((y_s1 - drop(X_s1 %*% beta_hat1))) 
     #                   + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * 2))
@@ -325,6 +351,9 @@ r = 0.75 # To be changed
     e_s = y_s - X_s %*% beta_hat_Lasso
     sigma_Lasso = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
     
+    e_s = y_s - X_s[, beta_hat_Lasso != 0, drop = F] %*% beta_hat_refit
+    sigma_Lasso2 = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
+    
     # SubIndex_unlist = unlist(SubIndex_list)
     # e_s = unlist(sapply(Index, function(i) e_s_vec[SubIndex_unlist == i]))
     # sigma_Debiased = sqrt(drop(t(e_s_tmp)  %*% Omega %*% e_s_tmp))
@@ -342,13 +371,16 @@ r = 0.75 # To be changed
     e_s = unlist(e_s_vec_Lasso)[as.character(Index)]
     sigma_Debiased_Lasso = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
     
-    y_res = c(HT = y_HT, Diff = y_diff, GREG = y_GREG, Lasso = y_Lasso, 
-              SS = y_debiased, SSLasso = y_debiased_Lasso)
+    e_s = unlist(e_s_vec_Lasso2)[as.character(Index)]
+    sigma_Debiased_Lasso2 = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
+    
+    y_res = c(HT = y_HT, Diff = y_diff, GREG = y_GREG, Lasso = y_Lasso, Lasso2 = y_Lasso2, 
+              SS = y_debiased, SSLasso = y_debiased_Lasso, SSLasso2 = y_debiased_Lasso2)
     
     # res = rbind(res, y_res)
     
-    sigma_res = c(HT = sigma_HT, Diff = sigma_diff, GREG = sigma_GREG, Lasso = sigma_Lasso,
-                  SS = sigma_Debiased, SSLasso = sigma_Debiased_Lasso)
+    sigma_res = c(HT = sigma_HT, Diff = sigma_diff, GREG = sigma_GREG, Lasso = sigma_Lasso, Lasso2 = sigma_Lasso2,
+                  SS = sigma_Debiased, SSLasso = sigma_Debiased_Lasso, SSLasso2 = sigma_Debiased_Lasso2)
     
     # res2 = rbind(res2, sigma_res)
     
@@ -367,6 +399,8 @@ r = 0.75 # To be changed
   res = do.call("rbind", final_res1)
   res2 = do.call("rbind", final_res2)
   res3 = do.call("rbind", final_res3)
+  
+  if(K == seq_K[1]) resk1 = res
   
   BIAS = colMeans(res - t_y)
   SE = apply(res, 2, function(x) sqrt(var(x) * (length(x)-1)/length(x) ))
@@ -399,6 +433,13 @@ xtable(cbind(BIAS = BIAS_res[,1], SE = SE_res[,1], RMSE = RMSE_res[,1]) )
 xtable(cbind(BIAS = BIAS_res[,length(seq_K)], SE = SE_res[,length(seq_K)], RMSE = RMSE_res[,length(seq_K)]) )
 
 xtable(cbind(RB = RB_res[,1], CR = CR_res[,1]) )
+xtable(cbind(RB = RB_res[,length(seq_K)], CR = CR_res[,length(seq_K)]) )
+
+colnames(resk1)[6:8] <- paste(colnames(resk1)[6:8], "(K=", seq_K[1], ")", sep = "")
+colnames(res)[6:8] <- paste(colnames(res)[6:8], "(K=", seq_K[2], ")", sep = "")
+boxplot(cbind(resk1, res[,6:8]), col = rep(c(3,4,4), each = 5))
+abline(h = t_y, lty = 1, col = 2)
+abline(v = c(5.5, 8.5), lty = 3)
 
 matplot(t(RMSE_res[-c(1, 2),]), type = "l", col = hcl.colors(4, "Temps"), lty = 1, lwd = 2, ylim = c(min(SE_res[-c(1, 2),]), max(RMSE_res[-c(1, 2),])),
         xlab = "K", xaxt = "n", ylab = "", main = "solid line = RMSE, dashed line = SE")
