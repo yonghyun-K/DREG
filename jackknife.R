@@ -501,10 +501,11 @@ xtable(cbind(BIAS = BIAS_res[,1], SE = SE_res[,1], RMSE = RMSE_res[,1],
 xtable(cbind(RB = RB_res[,1], CR = CR_res[,1],
              RB = RB_res[,length(seq_p)], CR = CR_res[,length(seq_p)]))
 
-
-includeidx = c(9,10,11)
+includeidx = c(3,4,9,10)
+# includeidx = c(3,4,5,9,10,11)
+# includeidx = c(9,10,11)
 matplot(t(RMSE_res[includeidx,]), type = "l", col = hcl.colors(length(includeidx), "Temps"), lty = 1, lwd = 2, ylim = c(min(SE_res[includeidx,]), max(RMSE_res[includeidx,])),
         xlab = "p", xaxt = "n", ylab = "", main = "solid line = RMSE, dashed line = SE")
 axis(1, at = seq(seq_p), labels = seq_p, cex.axis = 0.7)
 matlines(t(SE_res[includeidx,]), type = "l", col = hcl.colors(length(includeidx), "Temps"), lty = 2, lwd = 2)
-legend("topleft", rownames(RMSE_res[includeidx,]), col = hcl.colors(length(includeidx), "Temps"), lty = 1, cex = 0.7)
+legend("topleft", rownames(RMSE_res[includeidx,]), col = hcl.colors(length(includeidx), "Temps"), lty = 1, cex = 0.5)
