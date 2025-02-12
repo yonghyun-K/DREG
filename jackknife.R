@@ -78,8 +78,8 @@ cv_model <- cv.glmnet(X, y)
 X = cbind(1, X)
 beta = c(0, beta)
 
-# r = 0.75 # To be changed
-r = 0
+r = 0.75 # To be changed
+# r = 0
 if (r == 0) {
   z = rnorm(n = N, 0, 1)
 } else{
@@ -447,7 +447,7 @@ res = do.call("rbind", final_res1)
 res2 = do.call("rbind", final_res2)
 res3 = do.call("rbind", final_res3)
 
-if(K == seq_K[1]) resk1 = res
+if(p == seq_p[1]) resk1 = res
 
 BIAS = colMeans(res - t_y)
 SE = apply(res, 2, function(x)
