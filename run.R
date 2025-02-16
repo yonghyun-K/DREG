@@ -64,7 +64,6 @@ if(simnum == 0){
 
 #find optimal lambda value that minimizes test MSE
 best_lambda <- cv_model$lambda.min
-best_lambda
 if (wls) {
   best_model <- glmnet(X_s, y_s, weights = d1_s, lambda = best_lambda)
 } else{
@@ -132,16 +131,18 @@ sigma_res = c(
 )
 
 # seq_K = round(c(2^(1:floor(log2(n))), n))
-seq_K = round(c(2, n))
-# seq_K = round(c(2, N))
+# seq_K = round(c(2, n))
+seq_K = round(c(2, N)) # K = N is jackknife
 # seq_K = 2
 for (K in seq_K) {
   # print(K)
   
   y_debiased_vec = NULL
+  y_debiased_vec2 = NULL
   y_debiased_Lasso_vec = NULL
   y_debiased_Lasso_vec2 = NULL
   e_s_vec = list()
+  e_s_vec2 = list()
   e_s_vec_Lasso = list()
   e_s_vec_Lasso2 = list()
   # e_s_vec = numeric(n)
@@ -160,23 +161,14 @@ for (K in seq_K) {
   for (k in 1:K) {
     # for(k in 1){
     # set.seed(k)
-    # SubIndex = sample(1:N, size = round(N / 2), replace = FALSE)
     SubIndex = SubIndex_list[[k]]
     
     Index_sub1 = Index[Index %in% SubIndex]
     Index_sub2 = Index[!(Index %in% SubIndex)]
-    # Index_sub1 = Index[sample(1:n, size = m, replace = FALSE)]
-    # Index_sub2 = Index[!(Index %in% Index_sub1)]
     
     y_s1 = y[Index_sub1]
     X_s1 = X[Index_sub1, , drop = F]
     d1_s1 = d1[Index_sub1]
-    # if(wls){
-    #   lm_obj1 = lm(y_s1 ~  0 +X_s1, weights = d1_s1)
-    # }else{
-    #   lm_obj1 = lm(y_s1 ~  0 +X_s1)
-    # }
-    # beta_hat1 = lm_obj1$coefficients
     
     y_s2 = y[Index_sub2]
     X_s2 = X[Index_sub2, , drop = F]
@@ -188,30 +180,44 @@ for (K in seq_K) {
     }
     beta_hat2 = lm_obj2$coefficients
     
-    # y_debiased = drop(colSums(X) %*% beta_hat + sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1)
-    # + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * d1_s2))
-    
-    # y_debiased = drop(colSums(X) %*% (sum(d1_s2) / sum(d1_s) * beta_hat1 + sum(d1_s1) / sum(d1_s) * beta_hat2) +
-    #                     sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1) + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * d1_s2))
-    
     y_debiased = drop(colSums(X[SubIndex, , drop = F]) %*% beta_hat2 + sum((y_s1 - drop(
       X_s1 %*% beta_hat2
     )) * d1_s1))
     
-    # y_debiased = drop(colSums(X[SubIndex, ]) %*% beta_hat2 + colSums(X[-SubIndex, ]) %*% beta_hat1 +
-    #                     sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1) + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * d1_s2))
-    
-    
-    # e_s_tmp = ifelse(Index %in% Index_sub1, y_s - X_s %*% beta_hat2, y_s - X_s %*% beta_hat1)
     e_s_tmp = drop(y_s1 - X_s1 %*% beta_hat2)
     names(e_s_tmp) = Index_sub1
     e_s_vec = append(e_s_vec, list(e_s_tmp))
-    # e_s_vec = e_s_vec + e_s_tmp
-    
-    if (is.na(y_debiased))
-      stop()
     
     y_debiased_vec = c(y_debiased_vec, y_debiased)
+    
+    # SSGREG_nosplit ####
+    
+    y_s1 = y[Index_sub1]
+    X_ss1 = X[Index_sub1, beta_hat_Lasso != 0, drop = F]
+    d1_s1 = d1[Index_sub1]
+    
+    y_s2 = y[Index_sub2]
+    X_ss2 = X[Index_sub2, beta_hat_Lasso != 0, drop = F]
+    d1_s2 = d1[Index_sub2]
+    if (wls) {
+      lm_obj2 = lm(y_s2 ~ 0 +  X_ss2, weights = d1_s2)
+    } else{
+      lm_obj2 = lm(y_s2 ~ 0 +  X_ss2)
+    }
+    beta_hat2 = lm_obj2$coefficients
+    
+    y_debiased2 = drop(colSums(X[SubIndex, beta_hat_Lasso != 0, drop = F]) %*% beta_hat2 + sum((y_s1 - drop(
+      X_ss1 %*% beta_hat2
+    )) * d1_s1))
+    
+    e_s_tmp = drop(y_s1 - X_ss1 %*% beta_hat2)
+    names(e_s_tmp) = Index_sub1
+    e_s_vec2 = append(e_s_vec2, list(e_s_tmp))
+    
+    y_debiased_vec2 = c(y_debiased_vec2, y_debiased2)
+    
+    
+    
     
     # if(simnum == 1){
     #   if(wls){
@@ -291,6 +297,7 @@ for (K in seq_K) {
   # e_s_tmp_Lasso = e_s_vec_Lasso / K
   
   y_debiased = sum(y_debiased_vec)
+  y_debiased2 = sum(y_debiased_vec2)
   y_debiased_Lasso = sum(y_debiased_Lasso_vec)
   y_debiased_Lasso2 = sum(y_debiased_Lasso_vec2)
   
@@ -302,6 +309,9 @@ for (K in seq_K) {
   # sigma_Debiased = sqrt(drop(t(e_s_tmp)  %*% Omega %*% e_s_tmp))
   e_s = unlist(e_s_vec)[as.character(Index)]
   sigma_Debiased = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
+  
+  e_s = unlist(e_s_vec2)[as.character(Index)]
+  sigma_Debiased2 = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
   
   # cor(y_s - X_s %*% beta_hat, e_s)
   
@@ -318,12 +328,12 @@ for (K in seq_K) {
   sigma_Debiased_Lasso2 = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
   
   y_res = c(y_res,
-            setNames(c(SS = y_debiased, SSLasso = y_debiased_Lasso, SSLassoRefit = y_debiased_Lasso2), 
-                     paste(c("SSGREG", "SSLasso", "SSLassoRefit"), "(", K, ")", sep = "")))
+            setNames(c(y_debiased, y_debiased2, y_debiased_Lasso, y_debiased_Lasso2), 
+                     paste(c("SSGREG", "SSGREG_nosplit", "SSLasso", "SSLassoRefit"), "(", K, ")", sep = "")))
   
   sigma_res = c(sigma_res,
-                setNames(c(SS = sigma_Debiased, SSLasso = sigma_Debiased_Lasso, SSLassoRefit = sigma_Debiased_Lasso2), 
-                         paste(c("SSGREG", "SSLasso", "SSLassoRefit"), "(", K, ")", sep = "")))
+                setNames(c(sigma_Debiased, sigma_Debiased2, sigma_Debiased_Lasso, sigma_Debiased_Lasso2), 
+                         paste(c("SSGREG", "SSGREG_nosplit", "SSLasso", "SSLassoRefit"), "(", K, ")", sep = "")))
   
 }
 

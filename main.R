@@ -2,7 +2,7 @@ N = 2000
 n = 300
 # p = ?
 s = 5
-SIMNUM = 500
+SIMNUM = 5
 # K = ?
 wls = T
 r = 0.75 # To be changed
@@ -55,7 +55,7 @@ FDR_res = NULL
 FNR_res = NULL
 seq_p = c(10, 20, 30, 40, 50, 70, 80, 90, 100, 110, 120)
 # seq_p = c(10, 20, 40, 80, 120)
-# seq_p = c(10, 20)
+# seq_p = c(10, 200)
 
 # Set.seed for the multi-clusters ####
 # cl <- makeCluster(cores, outfile = timenow) #not to overload your computer
@@ -253,20 +253,20 @@ xtable(cbind(RB = RB_res[,1], CR = CR_res[,1],
 colnames(FDR_res) <- seq_p
 
 if(!isInteractive){
-png("boxplot_FDR.png")
+png("boxplot_FDR.png", width = 280, height = 480)
 boxplot(FDR_res, xlab = "p", ylab = "FDR")
 dev.off()
-png("boxplot_FD.png")
+png("boxplot_FD.png", width = 280, height = 480)
 boxplot(FDR_res * rep((seq_p + 1-s), each = nrow(FDR_res)), xlab = "p", ylab = "False Discoveries")
 dev.off()
-png("boxplot_FNR.png")
+png("boxplot_FNR.png", width = 280, height = 480)
 boxplot(FNR_res, xlab = "p", ylab = "FNR")
 dev.off()
-png("boxplot_FN.png")
+png("boxplot_FN.png", width = 280, height = 480)
 boxplot(FNR_res * rep(s, each = nrow(FNR_res)), xlab = "p", ylab = "False Exclusions")
 dev.off()
 
-png("RMSE_linegraph.png")
+png("RMSE_linegraph.png", width = 280, height = 480)
 includeidx = c(3,5,6,10,11,12)
 # includeidx = c(3,4,5,9,10,11)
 # includeidx = c(9,10,11)
