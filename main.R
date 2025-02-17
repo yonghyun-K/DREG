@@ -2,11 +2,11 @@ N = 2000
 n = 300
 # p = ?
 s = 5
-SIMNUM = 5
+SIMNUM = 500
 # K = ?
 wls = T
-r = 0.75 # To be changed
-# r = 0
+# r = 0.75 # To be changed
+r = 0
 
 # X = matrix(rnorm(N * p, 2, 1), nr = N, nc = p)
 library(xtable)
