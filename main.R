@@ -103,7 +103,9 @@ X = X0[,1:p]
 beta = c(rep(1, s), rep(0, p - s))
 # mu = X %*% beta; if(p == seq_p[1]) print("linear model")
 # mu = cbind(exp(1.25 * sin(X[,1:s])), X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
-mu = cbind(X[,1:s]^(1:s %% 2 + 1) / 5, X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
+# mu = cbind(X[,1:s]^(1:s %% 2 + 1) / 5, X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
+mu = cbind(X[,1:s]^(1:s %% 3 + 1) / 20, X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
+# diag(var(X[,1:s]^(1:s %% 3 + 1) / 20))
 y = mu + e
 var(mu); var(e)
 # var(exp(1.25 * sin(X[,2])))
@@ -253,10 +255,10 @@ print(summary(res5 * s))
 
 # colnames(resk1)[6:8] <- paste(colnames(resk1)[6:8], "(K=", seq_K[1], ")", sep = "")
 # colnames(res)[6:8] <- paste(colnames(res)[6:8], "(K=", seq_K[2], ")", sep = "")
-boxplot(res[,1:14], col = rep(c(3,4), times = c(6,8)), main = paste("p =", p),
+boxplot(res[,c(1,2,3,5,11,13,15,17,23,25)], col = rep(c(3,4,5), times = c(2,4,4)), main = paste("p =", p),
         cex.axis = 0.5)
 abline(h = t_y, lty = 1, col = 2)
-abline(v = c(6.5, 9.5), lty = 3)
+abline(v = c(2.5, 6.5), lty = 3)
 
 SE_res = cbind(SE_res, SE)
 RMSE_res = cbind(RMSE_res, RMSE)
@@ -290,28 +292,28 @@ xtable(cbind(RB = RB_res[,1], CR = CR_res[,1],
 colnames(FDR_res) <- seq_p
 
 if(!isInteractive){
-png("boxplot_FDR.png", width = 480, height = 280)
+png("boxplot_FDR.png", width = 960, height = 560)
 boxplot(FDR_res, xlab = "p", ylab = "FDR")
 dev.off()
-png("boxplot_FD.png", width = 480, height = 280)
+png("boxplot_FD.png", width = 960, height = 560)
 boxplot(FDR_res * rep((seq_p + 1-s), each = nrow(FDR_res)), xlab = "p", ylab = "False Discoveries")
 dev.off()
-png("boxplot_FNR.png", width = 480, height = 280)
+png("boxplot_FNR.png", width = 960, height = 560)
 boxplot(FNR_res, xlab = "p", ylab = "FNR")
 dev.off()
-png("boxplot_FN.png", width = 480, height = 280)
+png("boxplot_FN.png", width = 960, height = 560)
 boxplot(FNR_res * rep(s, each = nrow(FNR_res)), xlab = "p", ylab = "False Exclusions")
 dev.off()
 
-png("RMSE_linegraph.png", width = 480, height = 280)
-includeidx = c(3,5,6,10,11,12)
+png("RMSE_linegraph.png", width = 960, height = 560)
+includeidx = c(3,5,11,13)
 # includeidx = c(3,4,5,9,10,11)
 # includeidx = c(9,10,11)
 matplot(t(RMSE_res[includeidx,]), type = "l", col = hcl.colors(length(includeidx), "Temps"), lty = 1, lwd = 2, ylim = c(min(SE_res[includeidx,]), max(RMSE_res[includeidx,])),
         xlab = "p", xaxt = "n", ylab = "", main = "solid line = RMSE, dashed line = SE")
 axis(1, at = seq(seq_p), labels = seq_p, cex.axis = 0.7)
 matlines(t(SE_res[includeidx,]), type = "l", col = hcl.colors(length(includeidx), "Temps"), lty = 2, lwd = 2)
-legend("topleft", rownames(RMSE_res[includeidx,]), col = hcl.colors(length(includeidx), "Temps"), lty = 1, cex = 0.5)
+legend("topleft", rownames(RMSE_res[includeidx,]), col = hcl.colors(length(includeidx), "Temps"), lty = 1, cex = 0.7)
 dev.off()
 }
 
