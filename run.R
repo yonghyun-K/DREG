@@ -21,6 +21,33 @@ y_diff = drop(sum(mu) + sum((y_s - mu[Index]) * d1_s))
 
 y_GREG = drop(colSums(X) %*% beta_hat + sum((y_s - drop(X_s %*% beta_hat)) * d1_s))
 
+y_Tuckey = length(y_s) * y_GREG - (length(y_s)-1) / length(y_s) * sum(sapply(1:length(y_s), function(k){
+  if (wls) {
+    betahat_k = drop(solve(t(X_s[-k,,drop = F]) %*% diag(d1_s[-k]) %*% X_s[-k,,drop = F], t(X_s[-k,,drop = F]) %*% diag(d1_s[-k]) %*% y_s[-k]))
+  } else{
+    betahat_k = drop(solve(t(X_s[-k,,drop = F]) %*% X_s[-k,,drop = F], t(X_s[-k,,drop = F]) %*% y_s[-k]))
+  }
+  drop(colSums(X) %*% betahat_k) + sum((y_s[-k] - X_s[-k,,drop = F] %*% betahat_k) * d1_s[-k]) * n / (n-1)
+}))
+
+y_NaiveJ = mean(sapply(1:length(y_s), function(k){
+  if (wls) {
+    betahat_k = drop(solve(t(X_s[-k,,drop = F]) %*% diag(d1_s[-k]) %*% X_s[-k,,drop = F], t(X_s[-k,,drop = F]) %*% diag(d1_s[-k]) %*% y_s[-k]))
+  } else{
+    betahat_k = drop(solve(t(X_s[-k,,drop = F]) %*% X_s[-k,,drop = F], t(X_s[-k,,drop = F]) %*% y_s[-k]))
+  }
+  drop(colSums(X) %*% betahat_k) + sum((y_s - X_s %*% betahat_k) * d1_s)
+}))
+
+y_SampleJ = mean(sapply(1:length(y_s), function(k){
+  if (wls) {
+    betahat_k = drop(solve(t(X_s[-k,,drop = F]) %*% diag(d1_s[-k]) %*% X_s[-k,,drop = F], t(X_s[-k,,drop = F]) %*% diag(d1_s[-k]) %*% y_s[-k]))
+  } else{
+    betahat_k = drop(solve(t(X_s[-k,,drop = F]) %*% X_s[-k,,drop = F], t(X_s[-k,,drop = F]) %*% y_s[-k]))
+  }
+  drop(colSums(X) %*% betahat_k + (y_s[k] - X_s[k,,drop = F] %*% betahat_k) * d1_s[k])
+}))
+
 y_GREG_oracle = drop(colSums(X[, 1:(1 + s), drop = F]) %*% beta_hat_oracle + sum((y_s - drop(X_s_oracle %*% beta_hat_oracle)) * d1_s))
 
 if(simnum == 0){
@@ -87,6 +114,9 @@ y_res = c(
   Diff = y_diff,
   GREG = y_GREG,
   GREG_oracle = y_GREG_oracle,
+  Tuckey = y_Tuckey, 
+  NaiveJ = y_NaiveJ,
+  SampleJ = y_SampleJ,
   Lasso = y_Lasso,
   LassoRefit = y_Lasso2
 )
@@ -96,6 +126,9 @@ sigma_res = c(
   Diff = sigma_diff,
   GREG = sigma_GREG,
   GREG_oracle = sigma_GREG_oracle,
+  Tuckey = NA,
+  NaiveJ = NA,
+  SampleJ = NA,
   Lasso = sigma_Lasso,
   LassoRefit = sigma_Lasso2
 )

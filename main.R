@@ -2,7 +2,7 @@ N = 2000
 n = 300
 # p = ?
 s = 5
-SIMNUM = 500
+SIMNUM = 50
 # K = ?
 # wls = T
 
@@ -56,11 +56,13 @@ CR_res = NULL
 FDR_res = NULL
 FNR_res = NULL
 BIASapprox_res = NULL
-seq_p = c(10, 20, 30, 40, 50, 70, 80, 90, 100, 110, 120)
+# seq_p = c(10, 20, 30, 40, 50, 70, 80, 90, 100, 110, 120)
 # seq_p = c(10, 20, 40, 80, 120)
-# seq_p = c(10, 20)
+seq_p = c(10, 120)
 
-seq_K = round(c(2, 200)) # K = N is jackknife
+# seq_K = round(c(2, 200)) # K = N is jackknife
+# seq_K = round(c(N)) # K = N is jackknife
+seq_K = round(c(2)) # K = N is jackknife
 
 # Set.seed for the multi-clusters ####
 # cl <- makeCluster(cores, outfile = timenow) #not to overload your computer
@@ -72,6 +74,7 @@ print(paste("n =", n))
 print(paste("s =", s))
 print(paste("SIMNUM =", SIMNUM))
 print(paste("r =", r))
+print(paste("seq_K =", paste(seq_K)))
 
 set.seed(2)
 X0 = rmvnorm(n = N, rep(0, seq_p[length(seq_p)]), ar1_cor(seq_p[length(seq_p)], 0.2)) + 2
@@ -101,10 +104,10 @@ X = X0[,1:p]
 # X = scale(X, T, T)
 
 beta = c(rep(1, s), rep(0, p - s))
-# mu = X %*% beta; if(p == seq_p[1]) print("linear model")
+mu = X %*% beta; if(p == seq_p[1]) print("linear model")
 # mu = cbind(exp(1.25 * sin(X[,1:s])), X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
 # mu = cbind(X[,1:s]^(1:s %% 2 + 1) / 5, X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
-mu = cbind(X[,1:s]^(1:s %% 3 + 1) / 20, X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
+# mu = cbind(X[,1:s]^(1:s %% 3 + 1) / 20, X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
 # diag(var(X[,1:s]^(1:s %% 3 + 1) / 20))
 y = mu + e
 var(mu); var(e)
@@ -135,10 +138,12 @@ simnum = 0
 
 wls = T
 if(!isInteractive){
-  source("../sample.R")
+  # source("../sample.R")
+  source("../sample_poi.R", local = TRUE)
   source("../run.R")
 }else{
-  source("sample.R")
+  # source("sample.R")
+  source("sample_poi.R", local = TRUE)
   source("run.R")
 }
 
@@ -149,17 +154,19 @@ registerDoRNG(seed = 11)
 final_res <- foreach(
   simnum = 1:SIMNUM,
   .export = c("n", "N", "len", "z_sorted_idx", "isInteractive",
-              "y", "X", "mu", "cv_model", "cv_model2", "seq_K"),
+              "y", "X", "mu", "cv_model", "cv_model2", "seq_K", "e"),
   .packages = c("glmnet"),
   .errorhandling = "pass"
 ) %dopar% {
   
   wls = F
   if(!isInteractive){
-    source("../sample.R", local = TRUE)
+    # source("../sample.R", local = TRUE)
+    source("../sample_poi.R", local = TRUE)
     source("../run.R", local = TRUE)
   }else{
-    source("sample.R", local = TRUE)
+    # source("sample.R", local = TRUE)
+    source("sample_poi.R", local = TRUE)
     source("run.R", local = TRUE)
   }
   
@@ -255,7 +262,9 @@ print(summary(res5 * s))
 
 # colnames(resk1)[6:8] <- paste(colnames(resk1)[6:8], "(K=", seq_K[1], ")", sep = "")
 # colnames(res)[6:8] <- paste(colnames(res)[6:8], "(K=", seq_K[2], ")", sep = "")
-boxplot(res[,c(1,2,3,5,11,13,15,17,23,25)], col = rep(c(3,4,5), times = c(2,4,4)), main = paste("p =", p),
+# boxplot(res[,c(1,2,3,5,11,13,15,17,23,25)], col = rep(c(3,4,5), times = c(2,4,4)), main = paste("p =", p),
+#         cex.axis = 0.5)
+boxplot(res, main = paste("p =", p),
         cex.axis = 0.5)
 abline(h = t_y, lty = 1, col = 2)
 abline(v = c(2.5, 6.5), lty = 3)
