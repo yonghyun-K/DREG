@@ -73,16 +73,16 @@ y_Lasso = drop(colSums(X) %*% beta_hat_Lasso + sum((y_s - drop(
 
 # sum(beta_hat_Lasso[-c(1 : (1 + s))] != 0) / (p - s) # FDR
 
-X_s_refit = X_s[, beta_hat_Lasso != 0, drop = F]
-if (wls) {
-  refit_model = lm(y_s ~  0 + X_s_refit, weights = d1_s)
-} else{
-  refit_model = lm(y_s ~  0 + X_s_refit)
-}
-beta_hat_refit = refit_model$coefficients
-y_Lasso2 = drop(colSums(X[, beta_hat_Lasso != 0, drop = F]) %*% beta_hat_refit + sum((y_s - drop(
-  X_s_refit %*% beta_hat_refit
-)) * d1_s))
+# X_s_refit = X_s[, beta_hat_Lasso != 0, drop = F]
+# if (wls) {
+#   refit_model = lm(y_s ~  0 + X_s_refit, weights = d1_s)
+# } else{
+#   refit_model = lm(y_s ~  0 + X_s_refit)
+# }
+# beta_hat_refit = refit_model$coefficients
+# y_Lasso2 = drop(colSums(X[, beta_hat_Lasso != 0, drop = F]) %*% beta_hat_refit + sum((y_s - drop(
+#   X_s_refit %*% beta_hat_refit
+# )) * d1_s))
 
 sigma_HT = sqrt(drop(t(y_s)  %*% Omega %*% y_s))
 
@@ -106,8 +106,8 @@ sigma_GREG_oracle = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
 e_s = y_s - X_s %*% beta_hat_Lasso
 sigma_Lasso = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
 
-e_s = y_s - X_s[, beta_hat_Lasso != 0, drop = F] %*% beta_hat_refit
-sigma_Lasso2 = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
+# e_s = y_s - X_s[, beta_hat_Lasso != 0, drop = F] %*% beta_hat_refit
+# sigma_Lasso2 = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
 
 y_res = c(
   HT = y_HT,
@@ -117,8 +117,8 @@ y_res = c(
   Tuckey = y_Tuckey, 
   NaiveJ = y_NaiveJ,
   SampleJ = y_SampleJ,
-  Lasso = y_Lasso,
-  LassoRefit = y_Lasso2
+  Lasso = y_Lasso
+  # LassoRefit = y_Lasso2
 )
 
 sigma_res = c(
@@ -129,8 +129,8 @@ sigma_res = c(
   Tuckey = NA,
   NaiveJ = NA,
   SampleJ = NA,
-  Lasso = sigma_Lasso,
-  LassoRefit = sigma_Lasso2
+  Lasso = sigma_Lasso
+  # LassoRefit = sigma_Lasso2
 )
 
 tmpIndex = numeric(length(y))
@@ -141,8 +141,8 @@ bias_res = c(
   Diff = 0,
   GREG = cov(tmpIndex, drop(y - X %*% beta_hat)) * N,
   GREG_oracle = cov(tmpIndex, drop(y - X[, 1:(1 + s), drop = F] %*% beta_hat_oracle)) * N,
-  Lasso = cov(tmpIndex, drop(y - X %*% beta_hat_Lasso)) * N,
-  LassoRefit = cov(tmpIndex, drop(y - X[, beta_hat_Lasso != 0, drop = F] %*% beta_hat_refit)) * N
+  Lasso = cov(tmpIndex, drop(y - X %*% beta_hat_Lasso)) * N
+  # LassoRefit = cov(tmpIndex, drop(y - X[, beta_hat_Lasso != 0, drop = F] %*% beta_hat_refit)) * N
 )
 
 # seq_K = round(c(2^(1:floor(log2(n))), n))
@@ -212,31 +212,31 @@ for (K in seq_K) {
     
     # VS_SSGREG ####
     
-    y_s1 = y[Index_sub1]
-    X_ss1 = X[Index_sub1, beta_hat_Lasso != 0, drop = F]
-    d1_s1 = d1[Index_sub1]
-    
-    y_s2 = y[Index_sub2]
-    X_ss2 = X[Index_sub2, beta_hat_Lasso != 0, drop = F]
-    d1_s2 = d1[Index_sub2]
-    if (wls) {
-      lm_obj2 = lm(y_s2 ~ 0 +  X_ss2, weights = d1_s2)
-    } else{
-      lm_obj2 = lm(y_s2 ~ 0 +  X_ss2)
-    }
-    beta_hat2 = lm_obj2$coefficients
-    
-    y_debiased2 = drop(colSums(X[SubIndex, beta_hat_Lasso != 0, drop = F]) %*% beta_hat2 + sum((y_s1 - drop(
-      X_ss1 %*% beta_hat2
-    )) * d1_s1))
-    
-    e_s_tmp = drop(y_s1 - X_ss1 %*% beta_hat2)
-    names(e_s_tmp) = Index_sub1
-    e_s_vec2 = append(e_s_vec2, list(e_s_tmp))
-    
-    bias_vec[k, 2] = NA
-    
-    y_debiased_vec2 = c(y_debiased_vec2, y_debiased2)
+    # y_s1 = y[Index_sub1]
+    # X_ss1 = X[Index_sub1, beta_hat_Lasso != 0, drop = F]
+    # d1_s1 = d1[Index_sub1]
+    # 
+    # y_s2 = y[Index_sub2]
+    # X_ss2 = X[Index_sub2, beta_hat_Lasso != 0, drop = F]
+    # d1_s2 = d1[Index_sub2]
+    # if (wls) {
+    #   lm_obj2 = lm(y_s2 ~ 0 +  X_ss2, weights = d1_s2)
+    # } else{
+    #   lm_obj2 = lm(y_s2 ~ 0 +  X_ss2)
+    # }
+    # beta_hat2 = lm_obj2$coefficients
+    # 
+    # y_debiased2 = drop(colSums(X[SubIndex, beta_hat_Lasso != 0, drop = F]) %*% beta_hat2 + sum((y_s1 - drop(
+    #   X_ss1 %*% beta_hat2
+    # )) * d1_s1))
+    # 
+    # e_s_tmp = drop(y_s1 - X_ss1 %*% beta_hat2)
+    # names(e_s_tmp) = Index_sub1
+    # e_s_vec2 = append(e_s_vec2, list(e_s_tmp))
+    # 
+    # bias_vec[k, 2] = NA
+    # 
+    # y_debiased_vec2 = c(y_debiased_vec2, y_debiased2)
     
     
     
@@ -299,35 +299,35 @@ for (K in seq_K) {
     
     y_debiased_Lasso_vec = c(y_debiased_Lasso_vec, y_debiased_Lasso)
     
-    X_s_refit2 = X_s2[, beta_hat2 != 0, drop = F]
-    if (wls) {
-      refit_model = lm(y_s2 ~  0 + X_s_refit2, weights = d1_s2)
-    } else{
-      refit_model = lm(y_s2 ~  0 + X_s_refit2)
-    }
-    beta_hat_refit2 = refit_model$coefficients
-    y_debiased_Lasso2 = drop(colSums(X[SubIndex, beta_hat2 != 0, drop = F]) %*% beta_hat_refit2 +
-                               sum((
-                                 y_s1 - drop(X_s1[, beta_hat2 != 0, drop = F] %*% beta_hat_refit2)
-                               ) * d1_s1))
-    
-    e_s_tmp_Lasso2 = drop(y_s1 - X_s1[, beta_hat2 != 0, drop = F] %*% beta_hat_refit2)
-    names(e_s_tmp_Lasso2) = Index_sub1
-    e_s_vec_Lasso2 = append(e_s_vec_Lasso2, list(e_s_tmp_Lasso2))
-    
-    bias_vec[k, 4] = cov(tmpIndex[SubIndex], 
-      drop(y[SubIndex] - X[SubIndex, beta_hat2 != 0, drop = F] %*% beta_hat_refit2)) * length(SubIndex)
-    
-    y_debiased_Lasso_vec2 = c(y_debiased_Lasso_vec2, y_debiased_Lasso2)
+    # X_s_refit2 = X_s2[, beta_hat2 != 0, drop = F]
+    # if (wls) {
+    #   refit_model = lm(y_s2 ~  0 + X_s_refit2, weights = d1_s2)
+    # } else{
+    #   refit_model = lm(y_s2 ~  0 + X_s_refit2)
+    # }
+    # beta_hat_refit2 = refit_model$coefficients
+    # y_debiased_Lasso2 = drop(colSums(X[SubIndex, beta_hat2 != 0, drop = F]) %*% beta_hat_refit2 +
+    #                            sum((
+    #                              y_s1 - drop(X_s1[, beta_hat2 != 0, drop = F] %*% beta_hat_refit2)
+    #                            ) * d1_s1))
+    # 
+    # e_s_tmp_Lasso2 = drop(y_s1 - X_s1[, beta_hat2 != 0, drop = F] %*% beta_hat_refit2)
+    # names(e_s_tmp_Lasso2) = Index_sub1
+    # e_s_vec_Lasso2 = append(e_s_vec_Lasso2, list(e_s_tmp_Lasso2))
+    # 
+    # bias_vec[k, 4] = cov(tmpIndex[SubIndex], 
+    #   drop(y[SubIndex] - X[SubIndex, beta_hat2 != 0, drop = F] %*% beta_hat_refit2)) * length(SubIndex)
+    # 
+    # y_debiased_Lasso_vec2 = c(y_debiased_Lasso_vec2, y_debiased_Lasso2)
   }
 
   # e_s_tmp = e_s_vec / K
   # e_s_tmp_Lasso = e_s_vec_Lasso / K
   
   y_debiased = sum(y_debiased_vec)
-  y_debiased2 = sum(y_debiased_vec2)
+  # y_debiased2 = sum(y_debiased_vec2)
   y_debiased_Lasso = sum(y_debiased_Lasso_vec)
-  y_debiased_Lasso2 = sum(y_debiased_Lasso_vec2)
+  # y_debiased_Lasso2 = sum(y_debiased_Lasso_vec2)
   
   # y_unbiased = drop(colSums(X) %*% beta_hat1 + sum((y_s1 - drop(X_s1 %*% beta_hat1)))
   #                   + sum((y_s2 - drop(X_s2 %*% beta_hat1)) * 2))
@@ -338,8 +338,8 @@ for (K in seq_K) {
   e_s = unlist(e_s_vec)[as.character(Index)]
   sigma_Debiased = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
   
-  e_s = unlist(e_s_vec2)[as.character(Index)]
-  sigma_Debiased2 = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
+  # e_s = unlist(e_s_vec2)[as.character(Index)]
+  # sigma_Debiased2 = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
   
   # cor(y_s - X_s %*% beta_hat, e_s)
   
@@ -352,20 +352,21 @@ for (K in seq_K) {
   e_s = unlist(e_s_vec_Lasso)[as.character(Index)]
   sigma_Debiased_Lasso = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
   
-  e_s = unlist(e_s_vec_Lasso2)[as.character(Index)]
-  sigma_Debiased_Lasso2 = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
+  # e_s = unlist(e_s_vec_Lasso2)[as.character(Index)]
+  # sigma_Debiased_Lasso2 = sqrt(drop(t(e_s)  %*% Omega %*% e_s))
   
   y_res = c(y_res,
-            setNames(c(y_debiased, y_debiased2, y_debiased_Lasso, y_debiased_Lasso2), 
-                     paste(c("SSGREG", "VS_SSGREG", "SSLasso", "SSLassoRefit"), "(", K, ")", sep = "")))
+            setNames(c(y_debiased, y_debiased_Lasso), 
+                     paste(c("SSGREG", "SSLasso"), "(", K, ")", sep = "")))
   
   sigma_res = c(sigma_res,
-                setNames(c(sigma_Debiased, sigma_Debiased2, sigma_Debiased_Lasso, sigma_Debiased_Lasso2), 
-                         paste(c("SSGREG", "VS_SSGREG", "SSLasso", "SSLassoRefit"), "(", K, ")", sep = "")))
+                setNames(c(sigma_Debiased, sigma_Debiased_Lasso), 
+                         paste(c("SSGREG", "SSLasso"), "(", K, ")", sep = "")))
   
   bias_res = c(bias_res,
                setNames(colSums(bias_vec), 
-                        paste(c("SSGREG", "VS_SSGREG", "SSLasso", "SSLassoRefit"), "(", K, ")", sep = "")))
+                        paste(c("SSGREG", "SSLasso"), "(", K, ")", sep = "")))
 }
 
 # sum(beta_hat_Lasso[-c(2 : (1 + s))] != 0)
+

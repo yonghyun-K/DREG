@@ -1,6 +1,8 @@
-pi = pt(- e - 2, 3);
+# pi = pt(- e - 2, 3);
+pi = pt(- e , 3);
 pi = ifelse(pi >.7, .7, pi)
 
+mean(pi)
 delta = rbinom(N, 1, pi)
 Index = which(delta == 1)
 n = length(Index); #print(n)

@@ -1,13 +1,13 @@
-N = 2000
+N = 500
 n = 300
 # p = ?
 s = 5
-SIMNUM = 50
+SIMNUM = 100
 # K = ?
 # wls = T
 
-# r = 0 # Noninformative
-r = 0.75 # Informative
+r = 0 # Noninformative
+# r = 0.75 # Informative
 
 # X = matrix(rnorm(N * p, 2, 1), nr = N, nc = p)
 library(xtable)
@@ -59,10 +59,11 @@ BIASapprox_res = NULL
 # seq_p = c(10, 20, 30, 40, 50, 70, 80, 90, 100, 110, 120)
 # seq_p = c(10, 20, 40, 80, 120)
 seq_p = c(10, 120)
+# seq_p = c(120)
 
 # seq_K = round(c(2, 200)) # K = N is jackknife
-# seq_K = round(c(N)) # K = N is jackknife
-seq_K = round(c(2)) # K = N is jackknife
+seq_K = round(c(N)) # K = N is jackknife
+# seq_K = round(c(2)) # K = N is jackknife
 
 # Set.seed for the multi-clusters ####
 # cl <- makeCluster(cores, outfile = timenow) #not to overload your computer
@@ -104,10 +105,10 @@ X = X0[,1:p]
 # X = scale(X, T, T)
 
 beta = c(rep(1, s), rep(0, p - s))
-mu = X %*% beta; if(p == seq_p[1]) print("linear model")
+# mu = X %*% beta; if(p == seq_p[1]) print("linear model")
 # mu = cbind(exp(1.25 * sin(X[,1:s])), X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
 # mu = cbind(X[,1:s]^(1:s %% 2 + 1) / 5, X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
-# mu = cbind(X[,1:s]^(1:s %% 3 + 1) / 20, X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
+mu = cbind(X[,1:s]^(1:s %% 3 + 1) / 20, X[,(s+1):ncol(X)]) %*% beta; if(p == seq_p[1]) print("nonlinear model")
 # diag(var(X[,1:s]^(1:s %% 3 + 1) / 20))
 y = mu + e
 var(mu); var(e)
@@ -138,12 +139,12 @@ simnum = 0
 
 wls = T
 if(!isInteractive){
-  # source("../sample.R")
-  source("../sample_poi.R", local = TRUE)
+  source("../sample.R")
+  # source("../sample_poi.R", local = TRUE)
   source("../run.R")
 }else{
-  # source("sample.R")
-  source("sample_poi.R", local = TRUE)
+  source("sample.R")
+  # source("sample_poi.R", local = TRUE)
   source("run.R")
 }
 
@@ -161,12 +162,12 @@ final_res <- foreach(
   
   wls = F
   if(!isInteractive){
-    # source("../sample.R", local = TRUE)
-    source("../sample_poi.R", local = TRUE)
+    source("../sample.R", local = TRUE)
+    # source("../sample_poi.R", local = TRUE)
     source("../run.R", local = TRUE)
   }else{
-    # source("sample.R", local = TRUE)
-    source("sample_poi.R", local = TRUE)
+    source("sample.R", local = TRUE)
+    # source("sample_poi.R", local = TRUE)
     source("run.R", local = TRUE)
   }
   
@@ -286,14 +287,14 @@ print(timenow2 - timenow1)
 
 if(!interactive()) save.image(paste(timenow0, ".RData", sep = ""))
 
+xtable(cbind(cbind(BIAS = BIAS_res[,1], SE = SE_res[,1], RMSE = RMSE_res[,1]),
+cbind(BIAS = BIAS_res[,length(seq_p)], SE = SE_res[,length(seq_p)], RMSE = RMSE_res[,length(seq_p)]) ))
+
 # xtable(cbind(BIAS = BIAS_res[,1], SE = SE_res[,1], RMSE = RMSE_res[,1]) )
 # xtable(cbind(BIAS = BIAS_res[,length(seq_p)], SE = SE_res[,length(seq_p)], RMSE = RMSE_res[,length(seq_p)]) )
 
-xtable(cbind(BIAS = BIAS_res[,1], BIAS_aprx = BIASapprox_res[,1], SE = SE_res[,1], RMSE = RMSE_res[,1],
-             BIAS = BIAS_res[,length(seq_p)], BIAS_aprx = BIASapprox_res[,length(seq_p)], SE = SE_res[,length(seq_p)], RMSE = RMSE_res[,length(seq_p)]) )
-
-# xtable(cbind(RB = RB_res[,1], CR = CR_res[,1]) )
-# xtable(cbind(RB = RB_res[,length(seq_p)], CR = CR_res[,length(seq_p)]) )
+# xtable(cbind(BIAS = BIAS_res[,1], BIAS_aprx = BIASapprox_res[,1], SE = SE_res[,1], RMSE = RMSE_res[,1],
+#              BIAS = BIAS_res[,length(seq_p)], BIAS_aprx = BIASapprox_res[,length(seq_p)], SE = SE_res[,length(seq_p)], RMSE = RMSE_res[,length(seq_p)]) )
 
 xtable(cbind(RB = RB_res[,1], CR = CR_res[,1],
              RB = RB_res[,length(seq_p)], CR = CR_res[,length(seq_p)]))
@@ -326,20 +327,20 @@ legend("topleft", rownames(RMSE_res[includeidx,]), col = hcl.colors(length(inclu
 dev.off()
 }
 
-# Assuming res, t_y, and res6 are already defined
-df <- data.frame(
-  x = c((res - t_y)[,3], (res - t_y)[,5], (res - t_y)[,7], (res - t_y)[,9]),
-  y = c(res6[,3], res6[,5], res6[,7], res6[,9]),
-  group = factor(rep(c(3, 5, 7, 9), each = nrow(res6)))
-)
-colors <- c("black", "red", "blue", "green")
-names(colors) <- c("3", "5", "7", "9")
-ggplot(df, aes(x = x, y = y, color = group)) +
-  geom_point() +
-  scale_color_manual(values = colors, labels = rownames(RMSE_res[c(3,5,7,9),])) +
-  theme_minimal() +
-  geom_abline()+
-  labs(color = "Legend", x = "Bias", y = "Bias_approx")
+# # Assuming res, t_y, and res6 are already defined
+# df <- data.frame(
+#   x = c((res - t_y)[,3], (res - t_y)[,5], (res - t_y)[,7], (res - t_y)[,9]),
+#   y = c(res6[,3], res6[,5], res6[,7], res6[,9]),
+#   group = factor(rep(c(3, 5, 7, 9), each = nrow(res6)))
+# )
+# colors <- c("black", "red", "blue", "green")
+# names(colors) <- c("3", "5", "7", "9")
+# ggplot(df, aes(x = x, y = y, color = group)) +
+#   geom_point() +
+#   scale_color_manual(values = colors, labels = rownames(RMSE_res[c(3,5,7,9),])) +
+#   theme_minimal() +
+#   geom_abline()+
+#   labs(color = "Legend", x = "Bias", y = "Bias_approx")
 
 if(!interactive()) save.image(paste(timenow0, ".RData", sep = ""))
 
