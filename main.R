@@ -514,6 +514,9 @@ if (!interactive()) {
   on.exit({ try(parallel::stopCluster(cl), silent = TRUE) }, add = TRUE)
 }
 
+# RUN_DRIVER <- getOption("RUN_DRIVER", TRUE)
+# if (RUN_DRIVER) {
+  
 ## =========================================================
 ## Driver (shared)
 ## =========================================================
@@ -725,3 +728,4 @@ if (!interactive()) dev.off()
 ############################################################
 ## End unified single-file script                           ##
 ############################################################
+# }
