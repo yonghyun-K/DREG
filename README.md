@@ -10,7 +10,7 @@ stratified and rejective (Poisson-type) sampling:
 - `Diff` — difference estimator with the true mean function
 - `GREG` (and `GREG.oracle`) — generalized regression with full / oracle covariates
 - `GREG.Lasso` — GREG with a CV-tuned lasso working model
-- `SREG`, `SREG.Lasso` — sample-split (K-fold cross-fit) versions of the above
+- `DREG`, `DREG.Lasso` — debiased (K-fold cross-fit) versions of the above
 
 The K-sensitivity and nonlinear tasks additionally include nonparametric working
 models (regression splines and random forests).
@@ -71,8 +71,8 @@ are written to `fig/` by default.
 ## Applied analysis
 
 `kynetec_calib_organized_v10.R` is a self-contained workflow that builds
-calibration weights and compares point estimators (HT, GREG, sample-split
-GREG, and spline / random-forest variants) on Kynetec crop-survey data.
+calibration weights and compares point estimators (HT, GREG, DREG, and
+spline / random-forest variants) on Kynetec crop-survey data.
 Edit the `project_dir` and `stateNm` variables in the USER CONFIG block at
 the top before running.
 
