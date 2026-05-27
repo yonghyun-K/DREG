@@ -1,0 +1,347 @@
+nohup: ignoring input
+Rejective sampling
+Varying over: r
+Regression fit: WLS (weighted by 1/pi)
+Sweep dimension: r = {-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75}
+Fixed p = 90
+Batch backend: requested=96, allocated=96, workers=96
+[1] "SIMNUM = 500"
+[1] "sampling = rejective"
+[1] "p = 90 , r = -0.75"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:22:37 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & BIAS & SE & RMSE \\ 
+  \hline
+HT & 13.49 & 410.40 & 410.62 \\ 
+  Diff & 1.02 & 79.57 & 79.58 \\ 
+  GREG.oracle & -10.30 & 71.57 & 72.31 \\ 
+  GREG & -124.66 & 64.81 & 140.50 \\ 
+  DREG & 5.43 & 99.67 & 99.81 \\ 
+  GREG.Lasso & -33.83 & 81.45 & 88.20 \\ 
+  DREG.Lasso & 3.91 & 95.30 & 95.38 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of point estimation} 
+\end{table}
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:22:37 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & RB & CR \\ 
+  \hline
+HT & 1.67 & 1.00 \\ 
+  Diff & -0.01 & 0.94 \\ 
+  GREG.oracle & -0.03 & 0.93 \\ 
+  GREG & -0.60 & 0.25 \\ 
+  DREG & -0.05 & 0.94 \\ 
+  GREG.Lasso & 0.10 & 0.86 \\ 
+  DREG.Lasso & 0.18 & 0.96 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of variance estimation} 
+\end{table}
+[1] "p = 90 , r = -0.5"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:23:25 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & BIAS & SE & RMSE \\ 
+  \hline
+HT & -10.78 & 385.65 & 385.80 \\ 
+  Diff & 0.70 & 70.95 & 70.95 \\ 
+  GREG.oracle & -5.66 & 68.23 & 68.47 \\ 
+  GREG & -84.44 & 68.15 & 108.51 \\ 
+  DREG & 4.96 & 93.27 & 93.40 \\ 
+  GREG.Lasso & -23.00 & 76.58 & 79.96 \\ 
+  DREG.Lasso & 1.75 & 86.45 & 86.46 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of point estimation} 
+\end{table}
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:23:25 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & RB & CR \\ 
+  \hline
+HT & 1.80 & 1.00 \\ 
+  Diff & -0.10 & 0.94 \\ 
+  GREG.oracle & -0.13 & 0.93 \\ 
+  GREG & -0.64 & 0.47 \\ 
+  DREG & -0.19 & 0.93 \\ 
+  GREG.Lasso & 0.01 & 0.89 \\ 
+  DREG.Lasso & 0.09 & 0.95 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of variance estimation} 
+\end{table}
+[1] "p = 90 , r = -0.25"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:24:13 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & BIAS & SE & RMSE \\ 
+  \hline
+HT & -14.05 & 363.14 & 363.41 \\ 
+  Diff & 0.62 & 61.22 & 61.22 \\ 
+  GREG.oracle & -1.70 & 60.45 & 60.47 \\ 
+  GREG & -41.47 & 64.91 & 77.03 \\ 
+  DREG & 3.77 & 81.44 & 81.53 \\ 
+  GREG.Lasso & -9.99 & 66.83 & 67.58 \\ 
+  DREG.Lasso & 2.82 & 72.62 & 72.68 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of point estimation} 
+\end{table}
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:24:13 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & RB & CR \\ 
+  \hline
+HT & 2.00 & 1.00 \\ 
+  Diff & -0.02 & 0.95 \\ 
+  GREG.oracle & -0.06 & 0.94 \\ 
+  GREG & -0.60 & 0.68 \\ 
+  DREG & -0.12 & 0.93 \\ 
+  GREG.Lasso & 0.12 & 0.93 \\ 
+  DREG.Lasso & 0.21 & 0.96 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of variance estimation} 
+\end{table}
+[1] "p = 90 , r = 0"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:24:57 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & BIAS & SE & RMSE \\ 
+  \hline
+HT & -19.30 & 346.37 & 346.91 \\ 
+  Diff & -1.37 & 56.52 & 56.54 \\ 
+  GREG.oracle & -0.29 & 56.74 & 56.74 \\ 
+  GREG & -4.07 & 63.16 & 63.29 \\ 
+  DREG & -1.31 & 73.98 & 73.99 \\ 
+  GREG.Lasso & -2.60 & 60.85 & 60.90 \\ 
+  DREG.Lasso & -1.33 & 65.27 & 65.28 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of point estimation} 
+\end{table}
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:24:57 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & RB & CR \\ 
+  \hline
+HT & 2.16 & 1.00 \\ 
+  Diff & 0.05 & 0.95 \\ 
+  GREG.oracle & -0.01 & 0.94 \\ 
+  GREG & -0.58 & 0.78 \\ 
+  DREG & -0.02 & 0.94 \\ 
+  GREG.Lasso & 0.16 & 0.94 \\ 
+  DREG.Lasso & 0.25 & 0.96 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of variance estimation} 
+\end{table}
+[1] "p = 90 , r = 0.25"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:25:40 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & BIAS & SE & RMSE \\ 
+  \hline
+HT & -18.21 & 325.22 & 325.73 \\ 
+  Diff & -2.32 & 57.70 & 57.74 \\ 
+  GREG.oracle & 1.81 & 58.02 & 58.05 \\ 
+  GREG & 37.53 & 60.96 & 71.59 \\ 
+  DREG & -2.78 & 71.93 & 71.98 \\ 
+  GREG.Lasso & 7.32 & 57.24 & 57.70 \\ 
+  DREG.Lasso & -1.82 & 63.36 & 63.39 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of point estimation} 
+\end{table}
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:25:40 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & RB & CR \\ 
+  \hline
+HT & 2.45 & 1.00 \\ 
+  Diff & 0.04 & 0.95 \\ 
+  GREG.oracle & -0.03 & 0.95 \\ 
+  GREG & -0.54 & 0.72 \\ 
+  DREG & 0.06 & 0.95 \\ 
+  GREG.Lasso & 0.16 & 0.96 \\ 
+  DREG.Lasso & 0.18 & 0.96 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of variance estimation} 
+\end{table}
+[1] "p = 90 , r = 0.5"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:26:15 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & BIAS & SE & RMSE \\ 
+  \hline
+HT & 0.22 & 318.09 & 318.09 \\ 
+  Diff & -3.49 & 62.94 & 63.04 \\ 
+  GREG.oracle & 4.28 & 62.16 & 62.31 \\ 
+  GREG & 79.75 & 62.53 & 101.34 \\ 
+  DREG & -5.10 & 77.77 & 77.93 \\ 
+  GREG.Lasso & 18.73 & 56.39 & 59.42 \\ 
+  DREG.Lasso & -2.61 & 62.76 & 62.81 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of point estimation} 
+\end{table}
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:26:15 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & RB & CR \\ 
+  \hline
+HT & 2.50 & 1.00 \\ 
+  Diff & 0.02 & 0.95 \\ 
+  GREG.oracle & -0.03 & 0.92 \\ 
+  GREG & -0.56 & 0.51 \\ 
+  DREG & 0.03 & 0.95 \\ 
+  GREG.Lasso & 0.14 & 0.95 \\ 
+  DREG.Lasso & 0.19 & 0.97 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of variance estimation} 
+\end{table}
+[1] "p = 90 , r = 0.75"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:26:58 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrr}
+  \hline
+ & BIAS & SE & RMSE \\ 
+  \hline
+HT & -1.40 & 305.26 & 305.26 \\ 
+  Diff & -1.57 & 72.21 & 72.23 \\ 
+  GREG.oracle & 9.68 & 69.65 & 70.32 \\ 
+  GREG & 126.39 & 64.64 & 141.96 \\ 
+  DREG & -2.00 & 87.17 & 87.19 \\ 
+  GREG.Lasso & 32.66 & 56.86 & 65.57 \\ 
+  DREG.Lasso & 0.92 & 64.44 & 64.44 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of point estimation} 
+\end{table}
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:26:58 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrr}
+  \hline
+ & RB & CR \\ 
+  \hline
+HT & 2.66 & 1.00 \\ 
+  Diff & -0.01 & 0.93 \\ 
+  GREG.oracle & -0.06 & 0.92 \\ 
+  GREG & -0.58 & 0.26 \\ 
+  DREG & -0.00 & 0.94 \\ 
+  GREG.Lasso & 0.11 & 0.87 \\ 
+  DREG.Lasso & 0.21 & 0.96 \\ 
+   \hline
+\end{tabular}
+\caption{Summary of variance estimation} 
+\end{table}
+Warning messages:
+1: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, make_pi_from_z, var_poisson_approx, run_estimators, sampling, N, n, s, len, z_sorted_idx, z, y, X, mu, seq_K, wls_use
+2: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, make_pi_from_z, var_poisson_approx, run_estimators, sampling, N, n, s, len, z_sorted_idx, z, y, X, mu, seq_K, wls_use
+3: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, make_pi_from_z, var_poisson_approx, run_estimators, sampling, N, n, s, len, z_sorted_idx, z, y, X, mu, seq_K, wls_use
+4: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, make_pi_from_z, var_poisson_approx, run_estimators, sampling, N, n, s, len, z_sorted_idx, z, y, X, mu, seq_K, wls_use
+5: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, make_pi_from_z, var_poisson_approx, run_estimators, sampling, N, n, s, len, z_sorted_idx, z, y, X, mu, seq_K, wls_use
+6: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, make_pi_from_z, var_poisson_approx, run_estimators, sampling, N, n, s, len, z_sorted_idx, z, y, X, mu, seq_K, wls_use
+7: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, make_pi_from_z, var_poisson_approx, run_estimators, sampling, N, n, s, len, z_sorted_idx, z, y, X, mu, seq_K, wls_use
+[1] "Running time"
+Time difference of 5.267649 mins
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:26:58 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrrrr}
+  \hline
+ & BIAS & SE & RMSE & BIAS & SE & RMSE \\ 
+  \hline
+HT & 13.49 & 410.40 & 410.62 & -1.40 & 305.26 & 305.26 \\ 
+  Diff & 1.02 & 79.57 & 79.58 & -1.57 & 72.21 & 72.23 \\ 
+  GREG.oracle & -10.30 & 71.57 & 72.31 & 9.68 & 69.65 & 70.32 \\ 
+  GREG & -124.66 & 64.81 & 140.50 & 126.39 & 64.64 & 141.96 \\ 
+  DREG & 5.43 & 99.67 & 99.81 & -2.00 & 87.17 & 87.19 \\ 
+  GREG.Lasso & -33.83 & 81.45 & 88.20 & 32.66 & 56.86 & 65.57 \\ 
+  DREG.Lasso & 3.91 & 95.30 & 95.38 & 0.92 & 64.44 & 64.44 \\ 
+   \hline
+\end{tabular}
+\end{table}
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Wed May 27 04:26:58 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \hline
+ & RB & CR & RB & CR \\ 
+  \hline
+HT & 1.67 & 1.00 & 2.66 & 1.00 \\ 
+  Diff & -0.01 & 0.94 & -0.01 & 0.93 \\ 
+  GREG.oracle & -0.03 & 0.93 & -0.06 & 0.92 \\ 
+  GREG & -0.60 & 0.25 & -0.58 & 0.26 \\ 
+  DREG & -0.05 & 0.94 & -0.00 & 0.94 \\ 
+  GREG.Lasso & 0.10 & 0.86 & 0.11 & 0.87 \\ 
+  DREG.Lasso & 0.18 & 0.96 & 0.21 & 0.96 \\ 
+   \hline
+\end{tabular}
+\end{table}
+    -0.75      -0.5     -0.25         0      0.25       0.5      0.75 
+0.1670930 0.1563256 0.1497442 0.1526744 0.1484884 0.1493023 0.1515116 
+[1] 0 0 0 0 0 0 0
+pdf 
+  2 

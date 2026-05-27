@@ -1,0 +1,975 @@
+nohup: ignoring input
+Warning message:
+NAs introduced by coercion 
+Output: format=pdf, dir=fig
+starting worker pid=26250 on localhost:11657 at 04:35:42.656
+starting worker pid=26245 on localhost:11657 at 04:35:42.658
+starting worker pid=26260 on localhost:11657 at 04:35:42.659
+starting worker pid=26249 on localhost:11657 at 04:35:42.659
+starting worker pid=26244 on localhost:11657 at 04:35:42.659
+starting worker pid=26248 on localhost:11657 at 04:35:42.659
+starting worker pid=26251 on localhost:11657 at 04:35:42.660
+starting worker pid=26246 on localhost:11657 at 04:35:42.660
+starting worker pid=26252 on localhost:11657 at 04:35:42.660
+starting worker pid=26262 on localhost:11657 at 04:35:42.661
+starting worker pid=26271 on localhost:11657 at 04:35:42.661
+starting worker pid=26261 on localhost:11657 at 04:35:42.662
+starting worker pid=26253 on localhost:11657 at 04:35:42.662
+starting worker pid=26247 on localhost:11657 at 04:35:42.662
+starting worker pid=26272 on localhost:11657 at 04:35:42.663
+starting worker pid=26268 on localhost:11657 at 04:35:42.664
+starting worker pid=26289 on localhost:11657 at 04:35:42.664
+starting worker pid=26256 on localhost:11657 at 04:35:42.664
+starting worker pid=26279 on localhost:11657 at 04:35:42.664
+starting worker pid=26287 on localhost:11657 at 04:35:42.664
+starting worker pid=26254 on localhost:11657 at 04:35:42.664
+starting worker pid=26255 on localhost:11657 at 04:35:42.664
+starting worker pid=26294 on localhost:11657 at 04:35:42.664
+starting worker pid=26257 on localhost:11657 at 04:35:42.664
+starting worker pid=26267 on localhost:11657 at 04:35:42.664
+starting worker pid=26281 on localhost:11657 at 04:35:42.665
+starting worker pid=26263 on localhost:11657 at 04:35:42.665
+starting worker pid=26243 on localhost:11657 at 04:35:42.665
+starting worker pid=26291 on localhost:11657 at 04:35:42.666
+starting worker pid=26242 on localhost:11657 at 04:35:42.666
+starting worker pid=26305 on localhost:11657 at 04:35:42.666
+starting worker pid=26259 on localhost:11657 at 04:35:42.666
+starting worker pid=26311 on localhost:11657 at 04:35:42.666
+starting worker pid=26303 on localhost:11657 at 04:35:42.666
+starting worker pid=26258 on localhost:11657 at 04:35:42.667
+starting worker pid=26313 on localhost:11657 at 04:35:42.667
+starting worker pid=26389 on localhost:11657 at 04:35:42.669
+starting worker pid=26317 on localhost:11657 at 04:35:42.669
+starting worker pid=26266 on localhost:11657 at 04:35:42.670
+starting worker pid=26264 on localhost:11657 at 04:35:42.670
+starting worker pid=26285 on localhost:11657 at 04:35:42.670
+starting worker pid=26372 on localhost:11657 at 04:35:42.670
+starting worker pid=26327 on localhost:11657 at 04:35:42.671
+starting worker pid=26296 on localhost:11657 at 04:35:42.671
+starting worker pid=26350 on localhost:11657 at 04:35:42.671
+starting worker pid=26378 on localhost:11657 at 04:35:42.671
+starting worker pid=26274 on localhost:11657 at 04:35:42.671
+starting worker pid=26307 on localhost:11657 at 04:35:42.671
+starting worker pid=26332 on localhost:11657 at 04:35:42.671
+starting worker pid=26399 on localhost:11657 at 04:35:42.672
+starting worker pid=26298 on localhost:11657 at 04:35:42.672
+starting worker pid=26318 on localhost:11657 at 04:35:42.672
+starting worker pid=26322 on localhost:11657 at 04:35:42.672
+starting worker pid=26416 on localhost:11657 at 04:35:42.672
+starting worker pid=26459 on localhost:11657 at 04:35:42.673
+starting worker pid=26569 on localhost:11657 at 04:35:42.673
+starting worker pid=26337 on localhost:11657 at 04:35:42.673
+starting worker pid=26473 on localhost:11657 at 04:35:42.673
+starting worker pid=26450 on localhost:11657 at 04:35:42.673
+starting worker pid=26365 on localhost:11657 at 04:35:42.674
+starting worker pid=26444 on localhost:11657 at 04:35:42.674
+starting worker pid=26356 on localhost:11657 at 04:35:42.674
+starting worker pid=26353 on localhost:11657 at 04:35:42.674
+starting worker pid=26465 on localhost:11657 at 04:35:42.674
+starting worker pid=26432 on localhost:11657 at 04:35:42.674
+starting worker pid=26301 on localhost:11657 at 04:35:42.675
+starting worker pid=26496 on localhost:11657 at 04:35:42.675
+starting worker pid=26437 on localhost:11657 at 04:35:42.675
+starting worker pid=26589 on localhost:11657 at 04:35:42.676
+starting worker pid=26936 on localhost:11657 at 04:35:42.676
+starting worker pid=26520 on localhost:11657 at 04:35:42.676
+starting worker pid=26805 on localhost:11657 at 04:35:42.677
+starting worker pid=26728 on localhost:11657 at 04:35:42.677
+starting worker pid=26545 on localhost:11657 at 04:35:42.677
+starting worker pid=26614 on localhost:11657 at 04:35:42.677
+starting worker pid=26344 on localhost:11657 at 04:35:42.677
+starting worker pid=26822 on localhost:11657 at 04:35:42.678
+starting worker pid=26685 on localhost:11657 at 04:35:42.677
+starting worker pid=26855 on localhost:11657 at 04:35:42.678
+starting worker pid=26423 on localhost:11657 at 04:35:42.678
+starting worker pid=26745 on localhost:11657 at 04:35:42.678
+starting worker pid=26670 on localhost:11657 at 04:35:42.678
+starting worker pid=26486 on localhost:11657 at 04:35:42.678
+starting worker pid=26838 on localhost:11657 at 04:35:42.678
+starting worker pid=26776 on localhost:11657 at 04:35:42.678
+starting worker pid=26707 on localhost:11657 at 04:35:42.678
+starting worker pid=26533 on localhost:11657 at 04:35:42.679
+starting worker pid=26925 on localhost:11657 at 04:35:42.679
+starting worker pid=26506 on localhost:11657 at 04:35:42.679
+starting worker pid=26868 on localhost:11657 at 04:35:42.679
+starting worker pid=26896 on localhost:11657 at 04:35:42.679
+starting worker pid=26880 on localhost:11657 at 04:35:42.680
+starting worker pid=26795 on localhost:11657 at 04:35:42.680
+starting worker pid=26290 on localhost:11657 at 04:35:42.680
+starting worker pid=26763 on localhost:11657 at 04:35:42.682
+starting worker pid=26910 on localhost:11657 at 04:35:42.682
+[stratified/K] SIMNUM=500, workers=96, fit=OLS, K_grid={2,5,10,20,40,80}
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Wrote fig/supp_K_stratified.pdf
+starting worker pid=29653 on localhost:11657 at 04:37:17.880
+starting worker pid=29680 on localhost:11657 at 04:37:17.899
+starting worker pid=29587 on localhost:11657 at 04:37:17.916
+starting worker pid=29608 on localhost:11657 at 04:37:17.949
+starting worker pid=29599 on localhost:11657 at 04:37:17.953
+starting worker pid=29573 on localhost:11657 at 04:37:17.959
+starting worker pid=29595 on localhost:11657 at 04:37:17.962
+starting worker pid=29621 on localhost:11657 at 04:37:17.964
+starting worker pid=29645 on localhost:11657 at 04:37:17.965
+starting worker pid=29565 on localhost:11657 at 04:37:17.965
+starting worker pid=29668 on localhost:11657 at 04:37:17.974
+starting worker pid=29614 on localhost:11657 at 04:37:17.993
+starting worker pid=29691 on localhost:11657 at 04:37:17.995
+starting worker pid=29598 on localhost:11657 at 04:37:17.997
+starting worker pid=29627 on localhost:11657 at 04:37:18.015
+starting worker pid=29705 on localhost:11657 at 04:37:18.030
+starting worker pid=29593 on localhost:11657 at 04:37:18.033
+starting worker pid=29606 on localhost:11657 at 04:37:18.037
+starting worker pid=29650 on localhost:11657 at 04:37:18.040
+starting worker pid=29648 on localhost:11657 at 04:37:18.047
+starting worker pid=29615 on localhost:11657 at 04:37:18.055
+starting worker pid=29563 on localhost:11657 at 04:37:18.056
+starting worker pid=29585 on localhost:11657 at 04:37:18.059
+starting worker pid=29673 on localhost:11657 at 04:37:18.061
+starting worker pid=29661 on localhost:11657 at 04:37:18.061
+starting worker pid=29695 on localhost:11657 at 04:37:18.062
+starting worker pid=29562 on localhost:11657 at 04:37:18.064
+starting worker pid=29626 on localhost:11657 at 04:37:18.073
+starting worker pid=29569 on localhost:11657 at 04:37:18.073
+starting worker pid=29697 on localhost:11657 at 04:37:18.074
+starting worker pid=29618 on localhost:11657 at 04:37:18.075
+starting worker pid=29607 on localhost:11657 at 04:37:18.084
+starting worker pid=29582 on localhost:11657 at 04:37:18.083
+starting worker pid=29574 on localhost:11657 at 04:37:18.086
+starting worker pid=29682 on localhost:11657 at 04:37:18.094
+starting worker pid=29631 on localhost:11657 at 04:37:18.097
+starting worker pid=29704 on localhost:11657 at 04:37:18.098
+starting worker pid=29605 on localhost:11657 at 04:37:18.106
+starting worker pid=29716 on localhost:11657 at 04:37:18.108
+starting worker pid=29702 on localhost:11657 at 04:37:18.111
+starting worker pid=29603 on localhost:11657 at 04:37:18.113
+starting worker pid=29604 on localhost:11657 at 04:37:18.117
+starting worker pid=29655 on localhost:11657 at 04:37:18.119
+starting worker pid=29694 on localhost:11657 at 04:37:18.121
+starting worker pid=29649 on localhost:11657 at 04:37:18.122
+starting worker pid=29701 on localhost:11657 at 04:37:18.122
+starting worker pid=29640 on localhost:11657 at 04:37:18.118
+starting worker pid=29564 on localhost:11657 at 04:37:18.123
+starting worker pid=29592 on localhost:11657 at 04:37:18.126
+starting worker pid=29613 on localhost:11657 at 04:37:18.126
+starting worker pid=29610 on localhost:11657 at 04:37:18.130
+starting worker pid=29681 on localhost:11657 at 04:37:18.134
+starting worker pid=29707 on localhost:11657 at 04:37:18.138
+starting worker pid=29602 on localhost:11657 at 04:37:18.145
+starting worker pid=29622 on localhost:11657 at 04:37:18.146
+starting worker pid=29616 on localhost:11657 at 04:37:18.147
+starting worker pid=29590 on localhost:11657 at 04:37:18.147
+starting worker pid=29678 on localhost:11657 at 04:37:18.153
+starting worker pid=29584 on localhost:11657 at 04:37:18.161
+starting worker pid=29652 on localhost:11657 at 04:37:18.162
+starting worker pid=29624 on localhost:11657 at 04:37:18.164
+starting worker pid=29617 on localhost:11657 at 04:37:18.167
+starting worker pid=29597 on localhost:11657 at 04:37:18.172
+starting worker pid=29588 on localhost:11657 at 04:37:18.173
+starting worker pid=29646 on localhost:11657 at 04:37:18.175
+starting worker pid=29586 on localhost:11657 at 04:37:18.177
+starting worker pid=29633 on localhost:11657 at 04:37:18.178
+starting worker pid=29683 on localhost:11657 at 04:37:18.192
+starting worker pid=29637 on localhost:11657 at 04:37:18.192
+starting worker pid=29664 on localhost:11657 at 04:37:18.192
+starting worker pid=29589 on localhost:11657 at 04:37:18.195
+starting worker pid=29712 on localhost:11657 at 04:37:18.196
+starting worker pid=29667 on localhost:11657 at 04:37:18.199
+starting worker pid=29579 on localhost:11657 at 04:37:18.203
+starting worker pid=29635 on localhost:11657 at 04:37:18.205
+starting worker pid=29666 on localhost:11657 at 04:37:18.209
+starting worker pid=29686 on localhost:11657 at 04:37:18.215
+starting worker pid=29634 on localhost:11657 at 04:37:18.215
+starting worker pid=29687 on localhost:11657 at 04:37:18.219
+starting worker pid=29689 on localhost:11657 at 04:37:18.221
+starting worker pid=29609 on localhost:11657 at 04:37:18.224
+starting worker pid=29619 on localhost:11657 at 04:37:18.225
+starting worker pid=29676 on localhost:11657 at 04:37:18.228
+starting worker pid=29628 on localhost:11657 at 04:37:18.232
+starting worker pid=29601 on localhost:11657 at 04:37:18.233
+starting worker pid=29644 on localhost:11657 at 04:37:18.239
+starting worker pid=29677 on localhost:11657 at 04:37:18.240
+starting worker pid=29636 on localhost:11657 at 04:37:18.245
+starting worker pid=29629 on localhost:11657 at 04:37:18.243
+starting worker pid=29591 on localhost:11657 at 04:37:18.248
+starting worker pid=29580 on localhost:11657 at 04:37:18.249
+starting worker pid=29643 on localhost:11657 at 04:37:18.250
+starting worker pid=29611 on localhost:11657 at 04:37:18.255
+starting worker pid=29671 on localhost:11657 at 04:37:18.257
+starting worker pid=29708 on localhost:11657 at 04:37:18.264
+starting worker pid=29600 on localhost:11657 at 04:37:18.274
+[rejective/K] SIMNUM=500, workers=96, fit=OLS, K_grid={2,5,10,20,40,80}
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loading required package: Matrix
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loaded glmnet 4.1-10
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Loaded glmnet 4.1-10
+Loading required package: foreach
+Loading required package: rngtools
+Wrote fig/supp_K_rejective.pdf
+Wrote fig/supp_K_both.pdf
+Warning messages:
+1: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sampling, len, z_sorted_idx, z, y, X, mu, t_y, wls, K_vec
+2: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sampling, len, z_sorted_idx, z, y, X, mu, t_y, wls, K_vec
+Done.
