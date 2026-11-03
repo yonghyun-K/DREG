@@ -2,34 +2,49 @@
 #   Rscript main.R --run --B <SIMNUM> [--N <pop>] [--n <samp>] \
 #                  [--sampling stratified|rejective] [--vary_over p|r] \
 #                  [--p <num|list>] [--r <num|list>] \
-#                  [--wls] [--cores <int>] [--out <dir>]
+#                  [--wls] [--an true|false] [--lasso_only] [--K <int>] \
+#                  [--cores <int>] [--out <dir>]
 #
 # Notes:
-#   --run       acts as a "do it" flag (any value accepted; presence is enough).
-#   --B         number of Monte Carlo replicates (required in batch mode).
-#   --N, --n    override population and sample size (defaults: 1000, 300).
-#   --p, --r    override sweep grid / pinned value; accepts scalar or "a,b,c".
-#               When --vary_over=p, --p is the sweep grid and --r is the pinned
-#               value (must be scalar); vice versa for --vary_over=r.
-#   --wls       use weighted least squares (weights = 1/pi) for the regression
-#               fits. Bare flag means TRUE; you can also write --wls true/false.
-#               Default is OLS.
-#   --cores     number of parallel workers; overrides SLURM / detectCores().
-#   --out       output directory name; defaults to a timestamped folder.
+#   --run         acts as a "do it" flag (any value accepted; presence is enough).
+#   --B           number of Monte Carlo replicates (required in batch mode).
+#   --N, --n      override population and sample size (defaults: 1000, 300).
+#   --p, --r      override sweep grid / pinned value; accepts scalar or "a,b,c".
+#                 When --vary_over=p, --p is the sweep grid and --r is the pinned
+#                 value (must be scalar); vice versa for --vary_over=r.
+#   --wls         use weighted least squares (weights = 1/pi) for the regression
+#                 fits. Bare flag means TRUE; you can also write --wls true/false.
+#                 Default is OLS (unweighted fits).
+#   --an          also compute the conditional cross-fitted estimator of
+#                 An, Dagdoug, Haziza and Tille (2026). Default TRUE.
+#   --lasso_only  skip all least-squares fits on the full covariate set (for p >= n).
+#   --K           number of cross-fitting folds (default 10).
+#   --cores       number of parallel workers; overrides SLURM / detectCores().
+#   --out         output directory name; defaults to a timestamped folder.
+#
+# Revision (JSSAM-2026-121):
+#   * Lasso: glmnet's own intercept is added to the coefficient of the column of
+#     ones, so lasso predictions include the intercept.
+#   * Rejective sampling: exact second-order inclusion probabilities
+#     (sampling::UPmaxentropypi2) are used in the Horvitz-Thompson variance
+#     estimator (4.11) for every estimator.
+#   * New estimators: Diff.star (oracle built on the target of the fitted
+#     regression) and AnCF / AnCF.Lasso (An et al., 2026).
+#   * Output: BIAS, SD, RMSE, RB, CR, Monte Carlo SE of CR and mean CI length per
+#     grid value (summary_<value>.csv) and all replicate draws (replicates.rds).
+#   * Seeds: population set.seed(2); replicates doRNG seed 11 (reset per grid value).
 
 ## -------- CLI parser (flag-style) --------
 .parse_flags <- function(args) {
   out <- list()
   i <- 1L
   # Flags that may appear without an argument (presence == TRUE).
-  bool_flags <- c("run", "wls")
+  bool_flags <- c("run", "wls", "an", "lasso_only")
   while (i <= length(args)) {
     a <- args[i]
     if (!startsWith(a, "--")) stop("Expected --flag, got: ", a)
     key <- sub("^--", "", a)
     if (key %in% bool_flags) {
-      # Bare boolean: if the next token is missing or another flag, treat as TRUE.
-      # Otherwise consume it as an explicit value (true/false/yes/no/1/0).
       nxt <- if (i + 1L <= length(args)) args[i + 1L] else NA_character_
       if (is.na(nxt) || startsWith(nxt, "--")) {
         out[[key]] <- "true"; i <- i + 1L
@@ -45,30 +60,30 @@
 }
 
 .parse_num_list <- function(s) {
-  # Accepts NULL, a single number, or a comma/space-separated list of numbers.
   if (is.null(s)) return(NULL)
   if (!is.character(s)) {
     stop(".parse_num_list expected character, got ", class(s)[1],
-         " (value: ", paste(s, collapse = ", "), "). ",
-         "This usually means an opts$<flag> partial-match against another key.")
+         " (value: ", paste(s, collapse = ", "), ").")
   }
   toks <- strsplit(s, "[,[:space:]]+", perl = TRUE)[[1]]
   toks <- toks[nzchar(toks)]
   if (length(toks) == 0L) return(NULL)
   v <- suppressWarnings(as.numeric(toks))
-  if (any(is.na(v))) {
-    stop("Could not parse numeric list from '", s, "'.")
-  }
+  if (any(is.na(v))) stop("Could not parse numeric list from '", s, "'.")
   v
+}
+
+.parse_bool <- function(x, default) {
+  if (is.null(x)) return(default)
+  v <- tolower(as.character(x))
+  if (v %in% c("true", "t", "yes", "y", "1", "")) return(TRUE)
+  if (v %in% c("false", "f", "no", "n", "0")) return(FALSE)
+  stop("Could not parse boolean value '", x, "'.")
 }
 
 if (!interactive()) {
   opts <- .parse_flags(commandArgs(trailingOnly = TRUE))
-
-  # NOTE: always use opts[["x"]], NEVER opts$x. R's $ does partial matching
-  # on list element names; e.g. opts$r would silently match opts$run if --r
-  # is not supplied, returning TRUE instead of NULL.
-
+  # NOTE: always use opts[["x"]], NEVER opts$x (partial matching).
   if (is.null(opts[["B"]])) stop("Must supply --B <SIMNUM>.")
   SIMNUM <- as.numeric(opts[["B"]])
   if (!is.finite(SIMNUM) || SIMNUM <= 0) stop("--B must be a positive number.")
@@ -79,31 +94,29 @@ if (!interactive()) {
   N_user    <- if (!is.null(opts[["N"]]))     as.integer(opts[["N"]])     else 1000L
   n_user    <- if (!is.null(opts[["n"]]))     as.integer(opts[["n"]])     else 300L
   cores_req <- if (!is.null(opts[["cores"]])) as.integer(opts[["cores"]]) else NA_integer_
-  out_dir   <- opts[["out"]]          # NULL → fall back to timestamped name
+  K_user    <- if (!is.null(opts[["K"]]))     as.integer(opts[["K"]])     else 10L
+  out_dir   <- opts[["out"]]
 
-  p_user <- .parse_num_list(opts[["p"]])   # NULL, scalar, or vector
+  p_user <- .parse_num_list(opts[["p"]])
   r_user <- .parse_num_list(opts[["r"]])
 
-  # --wls accepts the bare flag (TRUE) or an explicit value (TRUE/FALSE/yes/no/1/0).
-  wls_use <- if (is.null(opts[["wls"]])) FALSE else {
-    v <- tolower(as.character(opts[["wls"]]))
-    if (v %in% c("true", "t", "yes", "y", "1", "")) TRUE
-    else if (v %in% c("false", "f", "no", "n", "0")) FALSE
-    else stop("Could not parse --wls value '", opts[["wls"]],
-              "'. Use true/false (or omit for OLS).")
-  }
-
+  wls_use    <- .parse_bool(opts[["wls"]], FALSE)
+  an_use     <- .parse_bool(opts[["an"]], TRUE)
+  lasso_only <- .parse_bool(opts[["lasso_only"]], FALSE)
 } else {
-  SIMNUM    <- 100
+  SIMNUM    <- 20
   sampling  <- "stratified"      # or "rejective"
   vary_over <- "r"               # "p" or "r"
   N_user    <- 1000L
   n_user    <- 300L
   cores_req <- NA_integer_
+  K_user    <- 10L
   out_dir   <- NULL
   p_user    <- NULL
-  r_user    <- NULL
+  r_user    <- -0.75
   wls_use   <- FALSE
+  an_use    <- TRUE
+  lasso_only <- FALSE
 }
 
 if (!sampling %in% c("stratified", "rejective")) {
@@ -112,14 +125,14 @@ if (!sampling %in% c("stratified", "rejective")) {
 if (!vary_over %in% c("p", "r")) {
   stop("Unknown vary_over='", vary_over, "'. Use 'p' or 'r'.")
 }
-if (sampling == "rejective") message("Rejective sampling")
-message("Varying over: ", vary_over)
-message("Regression fit: ", if (wls_use) "WLS (weighted by 1/pi)" else "OLS")
+message("Sampling: ", sampling, " | varying over: ", vary_over)
+message("Regression fit: ", if (wls_use) "WLS (weighted by 1/pi)" else "OLS",
+        " | An et al. estimator: ", an_use, " | lasso only: ", lasso_only, " | K = ", K_user)
 
 timenow1 <- Sys.time()
 timenow0 <- gsub(" ", "_", gsub("[-:]", "", timenow1))
 timenow0 <- paste0(c(sampling, vary_over, timenow0), collapse = "_")
-if (!is.null(out_dir)) timenow0 <- out_dir   # honor --out
+if (!is.null(out_dir)) timenow0 <- out_dir
 timenow  <- paste0(basename(timenow0), ".txt")
 
 ## -------- Packages --------
@@ -131,50 +144,35 @@ suppressPackageStartupMessages({
   library(foreach)
   library(doParallel)
   library(doRNG)
+  library(sampling)
 })
 
 ## -------- Parameters --------
 N <- N_user
 n <- n_user
 s <- 5
+K_use <- K_user
 
-# Defaults (used when the corresponding flag is not supplied).
-default_seq_p <- c(10, 50, 90, 130, 170, 210, 250)   # p = 250 takes too long.
+default_seq_p <- c(10, 50, 90, 130, 170, 210, 250)
 default_seq_r <- c(-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75)
 default_p     <- 90
 default_r     <- -0.75
 
 if (vary_over == "p") {
-  # Sweep over p; r must be a scalar.
   seq_p   <- if (!is.null(p_user)) p_user else default_seq_p
-  if (!is.null(r_user) && length(r_user) > 1L) {
-    stop("--r must be a single value when --vary_over p (got ",
-         length(r_user), " values: ", paste(r_user, collapse = ", "), ")")
-  }
+  if (!is.null(r_user) && length(r_user) > 1L) stop("--r must be a single value when --vary_over p")
   r_fixed <- if (!is.null(r_user)) r_user else default_r
-  p_fixed <- NA_real_                  # unused on this branch
+  p_fixed <- NA_real_
   seq     <- seq_p
 } else {
-  # Sweep over r; p must be a scalar.
-  if (!is.null(p_user) && length(p_user) > 1L) {
-    stop("--p must be a single value when --vary_over r (got ",
-         length(p_user), " values: ", paste(p_user, collapse = ", "), ")")
-  }
+  if (!is.null(p_user) && length(p_user) > 1L) stop("--p must be a single value when --vary_over r")
   p_fixed <- if (!is.null(p_user)) as.integer(p_user) else default_p
   seq_r   <- if (!is.null(r_user)) r_user else default_seq_r
-  r_fixed <- NA_real_                  # unused on this branch
+  r_fixed <- NA_real_
   seq     <- seq_r
 }
 
-# Initialize p, r so they exist before the loop overwrites them.
-p <- if (vary_over == "p") seq[1] else p_fixed
-r <- if (vary_over == "r") seq[1] else r_fixed
-
 message(sprintf("Sweep dimension: %s = {%s}", vary_over, paste(seq, collapse = ", ")))
-if (vary_over == "p") message(sprintf("Fixed r = %s", r_fixed))
-if (vary_over == "r") message(sprintf("Fixed p = %s", p_fixed))
-
-seq_K <- round(c(10))  # K = N is jackknife
 
 ## -------- Utilities --------
 ar1_cor <- function(n, rho) {
@@ -186,401 +184,264 @@ ar1_cor <- function(n, rho) {
 ## Sampling designs
 ## =========================================================
 
-## ---- Stratified (original main.R) ----
-sample_design_stratified <- function(N, n, len, z_sorted_idx, y, X) {
+## ---- Stratified: four strata of equal size defined by sorted z ----
+sample_design_stratified <- function(N, n, len, z_sorted_idx) {
   n_h <- as.integer(c(15, 20, 30, 35) / 100 * n)
   stopifnot(sum(n_h) == n)
-
   Index <- integer(n)
   d1 <- numeric(N)
-
   cumn_h <- cumsum(n_h)
   st <- c(1L, head(cumn_h, -1L) + 1L)
-
   for (i in 1:4) {
-    Idx_z <- (len * (i - 1) + 1):(len * i)
-    Idx <- z_sorted_idx[Idx_z]
-
+    Idx <- z_sorted_idx[(len * (i - 1) + 1):(len * i)]
     d1[Idx] <- len / n_h[i]
     Index[st[i]:cumn_h[i]] <- sample(Idx, size = n_h[i], replace = FALSE)
   }
-
-  list(
-    Index = Index,
-    d1 = d1,
-    d1_s = d1[Index],
-    y_s = y[Index],
-    X_s = X[Index, , drop = FALSE],
-    # strata bookkeeping for exact HT-style quadratic form
-    n_h = n_h,
-    st = st,
-    cumn_h = cumn_h,
-    len = len
-  )
+  list(Index = Index, d1 = d1, n_h = n_h, st = st, cumn_h = cumn_h, len = len)
 }
 
+# Exact stratified-SRSWOR HT variance estimator (4.11); e ordered by strata blocks.
 quad_Omega_strata <- function(e, n_h, len, st, cumn_h) {
   out <- 0
-  for (i in 1:4) {
-    idx <- st[i]:cumn_h[i]
-    eh <- e[idx]
+  for (i in seq_along(n_h)) {
+    eh <- e[st[i]:cumn_h[i]]
     nh <- n_h[i]
-
-    # constants from the Omega_tmp construction
     c_off <- len^2/nh^2 - len*(len-1)/nh/(nh-1)
     d_diag <- (1 - nh/len) * len^2/nh^2
-
-    s1 <- sum(eh)
-    s2 <- sum(eh*eh)
+    s1 <- sum(eh); s2 <- sum(eh*eh)
     out <- out + c_off * (s1*s1) + (d_diag - c_off) * s2
   }
   out
 }
 
-## ---- Rejective (original main_rejective.R) ----
+## ---- Rejective (conditional Poisson / maximum entropy) ----
 make_pi_from_z <- function(z, n, gamma = 1) {
-  mz <- as.numeric(scale(z))
   m  <- gamma * 1 / (1 + exp(-z))
-
   pi <- n * m / sum(m)
-
   fixed <- rep(FALSE, length(pi))
   while (any(pi > 1)) {
     idx1 <- which(pi > 1 & !fixed)
     if (!length(idx1)) break
     pi[idx1] <- 1
     fixed[idx1] <- TRUE
-
     n_rem <- n - sum(pi[fixed])
     if (n_rem <= 0) break
-
     idx0 <- which(!fixed)
-    m0 <- m[idx0]
-    pi[idx0] <- n_rem * m0 / sum(m0)
+    pi[idx0] <- n_rem * m[idx0] / sum(m[idx0])
   }
-
   if (abs(sum(pi) - n) > 1e-8) {
     idx0 <- which(pi < 1)
     pi[idx0] <- pi[idx0] * (n - sum(pi[pi == 1])) / sum(pi[idx0])
   }
-  pi <- pmax(pmin(pi, 1), 1e-12)
-  pi
+  pmax(pmin(pi, 1), 1e-12)
 }
 
-rejective_sample <- function(pi, n, max_tries = 1e6) {
-  N <- length(pi)
-  for (t in 1:max_tries) {
-    s <- rbinom(N, 1, pi)
-    if (sum(s) == n) return(s)
-  }
-  stop("Rejective sampler failed to hit fixed size; try adjusting pi or max_tries.")
+# Maximum-entropy (conditional Poisson) design with prescribed first-order
+# probabilities pik (Chen, Dempster and Liu, 1994). The working probabilities and the
+# matrix qmat = UPMEqfromw(w, n) are computed once per population; drawing with
+# UPMEsfromq(qmat) is then identical to sampling::UPmaxentropy(pik) when all pik < 1.
+sample_design_rejective <- function(pik, qmat) {
+  Index <- which(sampling::UPMEsfromq(qmat) == 1)
+  list(Index = Index, d1 = 1 / pik)
 }
 
-library(sampling)
-
-sample_design_rejective <- function(N, n, z, y, X, gamma = 1) {
-  pik <- make_pi_from_z(z, n, gamma = gamma)   # sum(pik) == n, 0<pik<1
-  s   <- sampling::UPmaxentropy(pik)           # 0/1 vector, fixed size
-  
-  Index <- which(s == 1)
-  d1    <- 1 / pik
-  
-  list(
-    Index = Index,
-    pi = pik,
-    d1 = d1,
-    d1_s = d1[Index],
-    y_s = y[Index],
-    X_s = X[Index, , drop = FALSE]
-  )
-}
-
-var_poisson_approx <- function(e_s, pi_s) {
-  sum((1 - pi_s) / (pi_s^2) * (e_s^2))
+# HT variance estimator (4.11) with exact pi_ij: Ds = (pi_ij - pi_i pi_j) / pi_ij on the sample.
+var_ht_exact <- function(e_s, pi_s, Ds) {
+  a <- e_s / pi_s
+  drop(crossprod(a, Ds %*% a))
 }
 
 ## =========================================================
-## Estimation / inference (shared core)
+## Fitting helpers
 ## =========================================================
-run_estimators <- function(
-  sampling,
-  N, n, s, y, X, mu,
-  # sample object fields (some may be NULL depending on sampling)
-  Index, d1, d1_s, y_s, X_s, pi = NULL, n_h = NULL, st = NULL, cumn_h = NULL, len = NULL,
-  seq_K, wls = FALSE
-) {
-  ## Base regression (GREG)
-  if (wls) {
-    lm_obj <- lm(y_s ~ 0 + X_s, weights = d1_s)
-  } else {
-    lm_obj <- lm(y_s ~ 0 + X_s)
+fit_ls <- function(Xs, ys, w = NULL) {
+  b <- if (is.null(w)) stats::lm.fit(Xs, ys)$coefficients else stats::lm.wfit(Xs, ys, w)$coefficients
+  b[is.na(b)] <- 0
+  b
+}
+
+# Lasso with 10-fold CV (lambda.min, standardize = TRUE). X has a column of ones in
+# position 1; glmnet fits its own (unpenalized) intercept, which is added to that
+# column's coefficient so that X %*% beta reproduces the lasso predictions.
+fit_lasso_beta <- function(Xs, ys, w = NULL) {
+  cvm <- if (is.null(w)) glmnet::cv.glmnet(Xs, ys) else glmnet::cv.glmnet(Xs, ys, weights = w)
+  b <- as.vector(stats::coef(cvm, s = "lambda.min"))
+  beta <- b[-1]
+  beta[1] <- beta[1] + b[1]
+  beta
+}
+
+# Out-of-fold predictions: mhat[i] = prediction for unit i from the fit on A \ A_{kappa_i}.
+cf_predict <- function(kappa, K, Index, X, y, d1, fit_fun, wls) {
+  mhat <- numeric(nrow(X))
+  for (k in 1:K) {
+    tr <- Index[kappa[Index] != k]
+    te <- which(kappa == k)
+    b <- fit_fun(X[tr, , drop = FALSE], y[tr], if (wls) d1[tr] else NULL)
+    mhat[te] <- drop(X[te, , drop = FALSE] %*% b)
   }
-  beta_hat <- lm_obj$coefficients
+  mhat
+}
 
-  ## Oracle regression uses intercept + first s signals (X already has intercept col)
-  X_s_oracle <- X[Index, 1:(1 + s), drop = FALSE]
-  if (wls) {
-    lm_obj_oracle <- lm(y_s ~ 0 + X_s_oracle, weights = d1_s)
-  } else {
-    lm_obj_oracle <- lm(y_s ~ 0 + X_s_oracle)
+# Balanced random partition of U into K folds, independent of the design.
+make_pop_folds <- function(N, K) {
+  kappa <- integer(N)
+  kappa[sample.int(N)] <- cut(seq_len(N), breaks = K, labels = FALSE)
+  kappa
+}
+
+## ---- An et al. (2026): conditional cross-fitted estimator ----
+# Stratified SRSWOR: design-aware folds within strata (their Algorithm 3 with the
+# split of Lu, Shi, Liu and Ding, 2025): in each stratum the sampled and the
+# nonsampled units are split separately into K folds of (nearly) equal size.
+make_folds_strat_aware <- function(strat_id, Index, K) {
+  kappa <- integer(length(strat_id))
+  inS <- logical(length(strat_id)); inS[Index] <- TRUE
+  for (h in sort(unique(strat_id))) {
+    Uh <- which(strat_id == h)
+    Ah <- Uh[inS[Uh]]; Bh <- Uh[!inS[Uh]]
+    Nh <- length(Uh); nh <- length(Ah)
+    o <- sample.int(K)
+    Nhk <- (rep(Nh %/% K, K) + (seq_len(K) <= Nh %% K))[o]
+    nhk <- (rep(nh %/% K, K) + (seq_len(K) <= nh %% K))[o]
+    kappa[Ah[sample.int(length(Ah))]] <- rep(seq_len(K), times = nhk)
+    kappa[Bh[sample.int(length(Bh))]] <- rep(seq_len(K), times = Nhk - nhk)
   }
-  beta_hat_oracle <- lm_obj_oracle$coefficients
+  kappa
+}
 
-  ## Core totals
-  y_HT   <- sum(y_s * d1_s)
-  y_diff <- drop(sum(mu) + sum((y_s - mu[Index]) * d1_s))
-  y_GREG <- drop(colSums(X) %*% beta_hat +
-                   sum((y_s - drop(X_s %*% beta_hat)) * d1_s))
-  # ## ---- Fast Tukey computation block (identical structure) ----
-  # w <- if (wls) d1_s else rep(1, n)
-  # 
-  # sw <- sqrt(w)
-  # Xw <- X_s * sw
-  # yw <- y_s * sw
-  # 
-  # XtWX <- crossprod(Xw)
-  # XtWy <- crossprod(Xw, yw)
-  # 
-  # R <- chol(XtWX)
-  # beta_hat <- backsolve(R, forwardsolve(t(R), XtWy))
-  # 
-  # yhat <- drop(X_s %*% beta_hat)
-  # e <- y_s - yhat
-  # 
-  # A <- chol2inv(R)
-  # XA <- X_s %*% A
-  # h <- w * rowSums(XA * X_s)
-  # 
-  # rk <- w * e / (1 - h)
-  # 
-  # X_tot  <- colSums(X)
-  # Wy_sum <- sum(w * y_s)
-  # Xw_sum <- colSums(X_s * w)
-  # 
-  # AtXtot  <- drop(A %*% X_tot)
-  # v <- drop(X_s %*% AtXtot)
-  # 
-  # AtXw_sum <- drop(A %*% Xw_sum)
-  # u <- drop(X_s %*% AtXw_sum)
-  # 
-  # term1 <- drop(crossprod(X_tot, beta_hat)) - rk * v
-  # 
-  # xbeta_mk_at_k <- yhat - h * (e / (1 - h))
-  # sum_wx_beta_mk <- drop(crossprod(Xw_sum, beta_hat)) - rk * u
-  # sum_wx_beta_excl_k <- sum_wx_beta_mk - w * xbeta_mk_at_k
-  # ressum_excl_k <- (Wy_sum - w * y_s) - sum_wx_beta_excl_k
-  # 
-  # term2 <- ressum_excl_k * n / (n - 1)
-
-  # y_GREG <- drop(crossprod(X_tot, beta_hat) + sum((y_s - yhat) * w))
-  # y_Tukey <- n * y_GREG - (n - 1) / n * sum(term1 + term2)
-
-  ## Oracle GREG
-  y_GREG_oracle <- drop(
-    colSums(X[,1:(1 + s), drop = FALSE]) %*% beta_hat_oracle +
-      sum((y_s - drop(X_s_oracle %*% beta_hat_oracle)) * d1_s)
-  )
-
-  ## Lasso (CV per simulation)
-  if (wls) {
-    cv_model <- cv.glmnet(X_s, y_s, weights = d1_s)
-    best_model <- glmnet(X_s, y_s, weights = d1_s, lambda = cv_model$lambda.min)
-  } else {
-    cv_model <- cv.glmnet(X_s, y_s)
-    best_model <- glmnet(X_s, y_s, lambda = cv_model$lambda.min)
+# Estimator and variance with weights 1/pi_{i|A} = N_hk / n_hk; given the fold sample
+# sizes, each stratum-by-fold cell is an SRSWOR of size n_hk from N_hk units.
+an_strat <- function(mhat, kappa, strat_id, Index, y) {
+  cell_U <- paste(strat_id, kappa)
+  cell_A <- cell_U[Index]
+  N_c <- table(cell_U); n_c <- table(cell_A)
+  e <- y[Index] - mhat[Index]
+  Nk <- as.numeric(N_c[cell_A]); nk <- as.numeric(n_c[cell_A])
+  total <- sum(mhat) + sum(e * Nk / nk)
+  V <- 0
+  for (cc in names(n_c)) {
+    ec <- e[cell_A == cc]
+    Ncc <- as.numeric(N_c[cc]); ncc <- length(ec)
+    if (ncc > 1) V <- V + Ncc^2 * (1 - ncc / Ncc) * stats::var(ec) / ncc
   }
-  beta_hat_Lasso <- as.vector(coef(best_model))[-1]  # length == ncol(X)
+  c(total, sqrt(max(V, 0)))
+}
 
-  y_Lasso <- drop(
-    colSums(X) %*% beta_hat_Lasso +
-      sum((y_s - drop(X_s %*% beta_hat_Lasso)) * d1_s)
-  )
+# Rejective sampling: same population folds as DREG; given the fold sample sizes n_k,
+# the sample in fold k is conditional Poisson of size n_k on U_k with the same
+# canonical weights wcan, so pi_{i|A} and pi_{ij|A} follow from the CPS recursions.
+an_rej_cond <- function(kappa, K, Index, wcan) {
+  lapply(1:K, function(k) {
+    Uk <- which(kappa == k)
+    Ak <- Index[kappa[Index] == k]
+    pc <- sampling::UPMEpikfromq(sampling::UPMEqfromw(wcan[Uk], length(Ak)))
+    p2 <- sampling::UPMEpik2frompikw(pc, wcan[Uk])
+    pos <- match(Ak, Uk)
+    pcA <- pc[pos]
+    D <- (p2[pos, pos, drop = FALSE] - tcrossprod(pcA)) / p2[pos, pos, drop = FALSE]
+    list(Ak = Ak, pcA = pcA, D = D)
+  })
+}
 
-  ## -------- Variances (design-specific) --------
+an_rej <- function(mhat, cond, y) {
+  total <- sum(mhat); V <- 0
+  for (cc in cond) {
+    a <- (y[cc$Ak] - mhat[cc$Ak]) / cc$pcA
+    total <- total + sum(a)
+    V <- V + drop(crossprod(a, cc$D %*% a))
+  }
+  c(total, sqrt(max(V, 0)))
+}
+
+## =========================================================
+## Estimation / inference for one sample
+## =========================================================
+run_estimators <- function(sampling, N, n, s, y, X, mu, mu_star, samp, K,
+                           wls, an, lasso_only, pik = NULL, Dmat = NULL,
+                           wcan = NULL, strat_id = NULL) {
+  Index <- samp$Index
+  d1 <- samp$d1
+  d1_s <- d1[Index]; y_s <- y[Index]; X_s <- X[Index, , drop = FALSE]
+  w_fit <- if (wls) d1_s else NULL
+
   if (sampling == "stratified") {
-    sigma_HT   <- sqrt(quad_Omega_strata(y_s, n_h, len, st, cumn_h))
-
-    e_s <- y_s - mu[Index]
-    sigma_diff <- sqrt(quad_Omega_strata(e_s, n_h, len, st, cumn_h))
-
-    e_s <- y_s - X_s %*% beta_hat
-    sigma_GREG <- sqrt(quad_Omega_strata(e_s, n_h, len, st, cumn_h))
-
-    # # Tukey JK by strata (your stratified version)
-    # T_i <- term1 + term2
-    # V_jk <- 0
-    # for (hh in seq(length(st))) {
-    #   idx <- st[hh]:cumn_h[hh]
-    #   Th_bar <- mean(T_i[idx])
-    #   V_jk <- V_jk + (n_h[hh] - 1) / n_h[hh] * sum((T_i[idx] - Th_bar)^2)
-    # }
-    # sigma_Tukey <- sqrt(V_jk)
-
-    e_s <- y_s - X_s_oracle %*% beta_hat_oracle
-    sigma_GREG_oracle <- sqrt(quad_Omega_strata(e_s, n_h, len, st, cumn_h))
-
-    e_s <- y_s - X_s %*% beta_hat_Lasso
-    sigma_Lasso <- sqrt(quad_Omega_strata(e_s, n_h, len, st, cumn_h))
-
-  } else { # rejective
-    sigma_HT   <- sqrt(var_poisson_approx(y_s,               pi[Index]))
-    sigma_diff <- sqrt(var_poisson_approx(y_s - mu[Index],   pi[Index]))
-    sigma_GREG <- sqrt(var_poisson_approx(y_s - drop(X_s %*% beta_hat),       pi[Index]))
-    sigma_Lasso<- sqrt(var_poisson_approx(y_s - drop(X_s %*% beta_hat_Lasso), pi[Index]))
-
-    # sigma_Tukey <- sqrt((n - 1) / n * sum((term1 + term2 - mean(term1 + term2))^2))
-
-    # keep same label set (oracle available; variance uses Poisson approx)
-    sigma_GREG_oracle <- sqrt(var_poisson_approx(y_s - drop(X_s_oracle %*% beta_hat_oracle), pi[Index]))
+    vfun <- function(e_s) quad_Omega_strata(e_s, samp$n_h, samp$len, samp$st, samp$cumn_h)
+  } else {
+    Ds <- Dmat[Index, Index]
+    pis <- pik[Index]
+    vfun <- function(e_s) var_ht_exact(e_s, pis, Ds)
   }
 
-  ## -------- Assemble base outputs --------
-  y_res <- c(
-    HT = y_HT,
-    Diff = y_diff,
-    # Tukey = y_Tukey,
-    GREG.oracle = y_GREG_oracle,    
-    GREG = y_GREG,
-    GREG.Lasso = y_Lasso
-  )
+  est <- c(); sig <- c()
+  add <- function(name, mpop) {
+    e_s <- y_s - mpop[Index]
+    est[name] <<- sum(mpop) + sum(e_s * d1_s)
+    sig[name] <<- sqrt(max(vfun(e_s), 0))
+  }
 
-  sigma_res <- c(
-    HT = sigma_HT,
-    Diff = sigma_diff,
-    # Tukey = sigma_Tukey,
-    GREG.oracle = sigma_GREG_oracle,    
-    GREG = sigma_GREG,
-    GREG.Lasso = sigma_Lasso
-  )
+  ## HT and oracles
+  est["HT"] <- sum(y_s * d1_s); sig["HT"] <- sqrt(max(vfun(y_s), 0))
+  add("Diff", mu)
+  add("Diff.star", mu_star)
 
-  tmpIndex <- numeric(length(y))
-  tmpIndex[Index] <- d1_s
+  ## GREG on the true support (intercept + first s covariates)
+  b_or <- fit_ls(X_s[, 1:(1 + s), drop = FALSE], y_s, w_fit)
+  add("GREG.oracle", drop(X[, 1:(1 + s), drop = FALSE] %*% b_or))
 
-  bias_res <- c(
-    HT = 0,
-    Diff = 0,
-    GREG.oracle = cov(tmpIndex, drop(y - X[,1:(1 + s), drop=FALSE] %*% beta_hat_oracle)) * N,
-    GREG = cov(tmpIndex, drop(y - X %*% beta_hat)) * N,
-    GREG.Lasso = cov(tmpIndex, drop(y - X %*% beta_hat_Lasso)) * N
-  )
+  ## Full-sample fits
+  if (!lasso_only) {
+    b <- fit_ls(X_s, y_s, w_fit)
+    add("GREG", drop(X %*% b))
+  }
+  bL <- fit_lasso_beta(X_s, y_s, w_fit)
+  add("GREG.Lasso", drop(X %*% bL))
 
-  ## FDR/FNR (same definition as originals)
-  FDR <- sum(beta_hat_Lasso[-c(2:(1 + s))] != 0) / (ncol(X) - s)
-  FNR <- sum(beta_hat_Lasso[c(2:(1 + s))] == 0) / s
+  ## DREG: population folds independent of the design
+  kappa <- make_pop_folds(N, K)
+  if (!lasso_only) {
+    mhat <- cf_predict(kappa, K, Index, X, y, d1, fit_ls, wls)
+    add("DREG", mhat)
+  }
+  mhatL <- cf_predict(kappa, K, Index, X, y, d1, fit_lasso_beta, wls)
+  add("DREG.Lasso", mhatL)
 
-  ## -------- Sample-splitting debiasing (shared; design-specific sigma) --------
-  for (K in seq_K) {
-    y_debiased_vec <- NULL
-    y_debiased_Lasso_vec <- NULL
-    e_s_vec <- list()
-    e_s_vec_Lasso <- list()
-    bias_vec <- matrix(0, nrow = K, ncol = 2)
-
-    shuffled <- sample(1:N)
-    groups <- cut(seq_along(shuffled), breaks = K, labels = FALSE)
-    SubIndex_list <- split(shuffled, groups)
-
-    for (k in 1:K) {
-      SubIndex <- SubIndex_list[[k]]
-
-      Index_sub1 <- Index[Index %in% SubIndex]
-      Index_sub2 <- Index[!(Index %in% SubIndex)]
-
-      y_s1 <- y[Index_sub1]
-      X_s1 <- X[Index_sub1, , drop = FALSE]
-      d1_s1 <- d1[Index_sub1]
-
-      y_s2 <- y[Index_sub2]
-      X_s2 <- X[Index_sub2, , drop = FALSE]
-      d1_s2 <- d1[Index_sub2]
-
-      if (wls) {
-        lm_obj2 <- lm(y_s2 ~ 0 + X_s2, weights = d1_s2)
-      } else {
-        lm_obj2 <- lm(y_s2 ~ 0 + X_s2)
-      }
-      beta_hat2 <- lm_obj2$coefficients
-
-      y_debiased <- drop(colSums(X[SubIndex, , drop = FALSE]) %*% beta_hat2 +
-                           sum((y_s1 - drop(X_s1 %*% beta_hat2)) * d1_s1))
-
-      e_tmp <- drop(y_s1 - X_s1 %*% beta_hat2)
-      names(e_tmp) <- Index_sub1
-      e_s_vec <- append(e_s_vec, list(e_tmp))
-
-      bias_vec[k, 1] <- cov(tmpIndex[SubIndex],
-                            drop(y[SubIndex] - X[SubIndex, , drop=FALSE] %*% beta_hat2)) * length(SubIndex)
-
-      y_debiased_vec <- c(y_debiased_vec, y_debiased)
-
-      if (wls) {
-        cv2 <- cv.glmnet(X_s2, y_s2, weights = d1_s2)
-        fit2 <- glmnet(X_s2, y_s2, weights = d1_s2, lambda = cv2$lambda.min)
-      } else {
-        cv2 <- cv.glmnet(X_s2, y_s2)
-        fit2 <- glmnet(X_s2, y_s2, lambda = cv2$lambda.min)
-      }
-      beta_hat2_L <- as.vector(coef(fit2))[-1]
-
-      y_debiased_Lasso <- drop(
-        colSums(X[SubIndex, , drop = FALSE]) %*% beta_hat2_L +
-          sum((y_s1 - drop(X_s1 %*% beta_hat2_L)) * d1_s1)
-      )
-
-      e_tmp_L <- drop(y_s1 - X_s1 %*% beta_hat2_L)
-      names(e_tmp_L) <- Index_sub1
-      e_s_vec_Lasso <- append(e_s_vec_Lasso, list(e_tmp_L))
-
-      bias_vec[k, 2] <- cov(tmpIndex[SubIndex],
-                            drop(y[SubIndex] - X[SubIndex, , drop = FALSE] %*% beta_hat2_L)) * length(SubIndex)
-
-      y_debiased_Lasso_vec <- c(y_debiased_Lasso_vec, y_debiased_Lasso)
-    }
-
-    y_debiased <- sum(y_debiased_vec)
-    y_debiased_Lasso <- sum(y_debiased_Lasso_vec)
-
-    e_s_ss  <- unlist(e_s_vec)[as.character(Index)]
-    e_s_ssl <- unlist(e_s_vec_Lasso)[as.character(Index)]
-
+  ## An et al. (2026)
+  if (an) {
     if (sampling == "stratified") {
-      sigma_SSGREG  <- sqrt(quad_Omega_strata(e_s_ss,  n_h, len, st, cumn_h))
-      sigma_SSLasso <- sqrt(quad_Omega_strata(e_s_ssl, n_h, len, st, cumn_h))
+      kappa_aw <- make_folds_strat_aware(strat_id, Index, K)
+      if (!lasso_only) {
+        r <- an_strat(cf_predict(kappa_aw, K, Index, X, y, d1, fit_ls, wls), kappa_aw, strat_id, Index, y)
+        est["AnCF"] <- r[1]; sig["AnCF"] <- r[2]
+      }
+      r <- an_strat(cf_predict(kappa_aw, K, Index, X, y, d1, fit_lasso_beta, wls), kappa_aw, strat_id, Index, y)
+      est["AnCF.Lasso"] <- r[1]; sig["AnCF.Lasso"] <- r[2]
     } else {
-      sigma_SSGREG  <- sqrt(var_poisson_approx(e_s_ss,  pi[Index]))
-      sigma_SSLasso <- sqrt(var_poisson_approx(e_s_ssl, pi[Index]))
+      cond <- an_rej_cond(kappa, K, Index, wcan)
+      if (!lasso_only) {
+        r <- an_rej(mhat, cond, y); est["AnCF"] <- r[1]; sig["AnCF"] <- r[2]
+      }
+      r <- an_rej(mhatL, cond, y); est["AnCF.Lasso"] <- r[1]; sig["AnCF.Lasso"] <- r[2]
     }
-
-    y_res_tmp <- setNames(c(y_debiased, y_debiased_Lasso), c("DREG", "DREG.Lasso"))
-    y_res <- c(y_res[1:(length(y_res) - 1)], y_res_tmp[1], y_res[length(y_res)], y_res_tmp[2])
-
-    sigma_res_tmp <- setNames(c(sigma_SSGREG, sigma_SSLasso), c("DREG", "DREG.Lasso"))
-    sigma_res <- c(sigma_res[1:(length(sigma_res) - 1)], sigma_res_tmp[1], sigma_res[length(sigma_res)], sigma_res_tmp[2])
-
-    bias_res_tmp <- setNames(colSums(bias_vec), c("DREG", "DREG.Lasso"))
-    bias_res <- c(bias_res[1:(length(bias_res) - 1)], bias_res_tmp[1], bias_res[length(bias_res)], bias_res_tmp[2])
   }
 
-  list(
-    y_res = y_res,
-    sigma_res = sigma_res,
-    bias_res = bias_res,
-    FDR = FDR,
-    FNR = FNR
-  )
+  ## Lasso selection (columns 2..(1+s) are the signals; column 1 is the intercept)
+  FDR <- sum(bL[-(1:(1 + s))] != 0) / (ncol(X) - 1 - s)
+  FNR <- sum(bL[2:(1 + s)] == 0) / s
+
+  ord <- c("HT", "Diff", "Diff.star", "GREG.oracle", "GREG", "DREG", "AnCF",
+           "GREG.Lasso", "DREG.Lasso", "AnCF.Lasso")
+  ord <- ord[ord %in% names(est)]
+  list(y_res = est[ord], sigma_res = sig[ord], FDR = FDR, FNR = FNR)
 }
 
 ## =========================================================
-## Parallel setup (shared)
+## Parallel setup
 ## =========================================================
 get_allocated_cores <- function() {
-  slurm <- Sys.getenv("SLURM_CPUS_PER_TASK")
-  pbs   <- Sys.getenv("PBS_NP")
-  lsf   <- Sys.getenv("LSB_DJOB_NUMPROC")
-
-  candidates <- suppressWarnings(as.integer(c(slurm, pbs, lsf)))
+  candidates <- suppressWarnings(as.integer(c(Sys.getenv("SLURM_CPUS_PER_TASK"),
+                                              Sys.getenv("PBS_NP"), Sys.getenv("LSB_DJOB_NUMPROC"))))
   candidates <- candidates[is.finite(candidates) & candidates > 0]
-
   if (length(candidates)) return(max(candidates))
   parallel::detectCores(logical = TRUE)
 }
@@ -588,39 +449,16 @@ get_allocated_cores <- function() {
 if (!interactive()) {
   dir.create(timenow0, showWarnings = FALSE, recursive = TRUE)
   setwd(timenow0)
-  sink(timenow, append = TRUE, split = TRUE)   # split=TRUE: keep echoing to stdout
-
-  if (is.finite(cores_req) && cores_req > 0L) {
-    nc <- cores_req                            # honor --cores verbatim
-  } else {
-    nc <- get_allocated_cores()
-  }
+  sink(timenow, append = TRUE, split = TRUE)
+  nc <- if (is.finite(cores_req) && cores_req > 0L) cores_req else get_allocated_cores()
   reserve <- if (is.finite(cores_req) && cores_req > 0L) 0L else 1L
-
-  workers_cap <- 100L
-  workers <- max(1L, min(SIMNUM, nc - reserve, workers_cap))
-
-  Sys.setenv(OMP_NUM_THREADS="1", MKL_NUM_THREADS="1", OPENBLAS_NUM_THREADS="1")
-
-  suppressMessages(library(doParallel))
+  workers <- max(1L, min(SIMNUM, nc - reserve, 100L))
+  Sys.setenv(OMP_NUM_THREADS = "1", MKL_NUM_THREADS = "1", OPENBLAS_NUM_THREADS = "1")
   cl <- parallel::makeCluster(workers, type = "PSOCK", outfile = "cluster_worker.log")
-
   doParallel::registerDoParallel(cl)
   on.exit({ try(parallel::stopCluster(cl), silent = TRUE) }, add = TRUE)
-
-  message(sprintf("Batch backend: requested=%s, allocated=%d, workers=%d",
-                  ifelse(is.finite(cores_req), as.character(cores_req), "auto"),
-                  nc, foreach::getDoParWorkers()))
-
-  .ok <- tryCatch({
-    aa <- foreach::foreach(i = 1:foreach::getDoParWorkers(), .combine = c) %dopar% i
-    length(aa) == foreach::getDoParWorkers()
-  }, error = function(e) FALSE)
-  if (!.ok) stop("Parallel backend smoke test failed")
-
+  message(sprintf("Batch backend: allocated=%d, workers=%d", nc, foreach::getDoParWorkers()))
 } else {
-  suppressMessages(library(doParallel))
-  print(paste("detectCores =", parallel::detectCores()))
   workers <- min(8L, parallel::detectCores() - 1L)
   cl <- parallel::makeCluster(workers, type = "PSOCK")
   doParallel::registerDoParallel(cl)
@@ -628,161 +466,139 @@ if (!interactive()) {
 }
 
 ## =========================================================
-## Driver (shared)
+## Driver
 ## =========================================================
-BIAS_res <- NULL
-SE_res <- NULL
-RMSE_res <- NULL
-RB_res <- NULL
-CR_res <- NULL
-FDR_res <- NULL
-FNR_res <- NULL
-BIASapprox_res <- NULL
+BIAS_res <- NULL; SE_res <- NULL; RMSE_res <- NULL; RB_res <- NULL; CR_res <- NULL
+FDR_res <- NULL; FNR_res <- NULL
+replicates <- list(); summaries <- list()
 
 set.seed(2)
-# X0 must be wide enough to support the largest p actually used.
 X0_dim <- if (vary_over == "p") max(seq) else as.integer(p_fixed)
-X0 <- rmvnorm(n = N, mean = rep(0, X0_dim),
-              sigma = ar1_cor(X0_dim, 0.2)) + 2
+X0 <- rmvnorm(n = N, mean = rep(0, X0_dim), sigma = ar1_cor(X0_dim, 0.2)) + 2
 e <- rnorm(N, 0, 1)
 len <- round(N / 4)
 
-print(paste("SIMNUM =", SIMNUM))
-print(paste("sampling =", sampling))
+print(paste("SIMNUM =", SIMNUM, "| sampling =", sampling, "| fit =", if (wls_use) "WLS" else "OLS"))
 
 for (val in seq) {
-  if (vary_over == "p") {
-    p <- val
-    r <- r_fixed
-  } else {
-    r <- val
-    p <- p_fixed
-  }
-  
+  if (vary_over == "p") { p <- val; r <- r_fixed } else { r <- val; p <- p_fixed }
   print(paste("p =", p, ", r =", r))
 
   z <- r * e + rnorm(n = N, 0, sqrt(1 - r^2))
   z_sorted_idx <- order(z)
 
   X <- X0[, 1:p, drop = FALSE]
-
   beta <- c(rep(1, s), rep(0, p - s))
-  mu <- X %*% beta
+  mu <- drop(X %*% beta)
   y <- drop(mu + e)
   t_y <- sum(y)
-
   X <- cbind(1, X)  # add intercept
+
+  ## Design quantities that do not change across replicates
+  pik <- NULL; Dmat <- NULL; wcan <- NULL; qmat <- NULL
+  strat_id <- integer(N)
+  for (h in 1:4) strat_id[z_sorted_idx[(len * (h - 1) + 1):(len * h)]] <- h
+  if (sampling == "stratified") {
+    piv <- (as.integer(c(15, 20, 30, 35) / 100 * n) / len)[strat_id]
+  } else {
+    pik  <- make_pi_from_z(z, n, gamma = 1)
+    stopifnot(all(pik < 1))
+    pi2  <- sampling::UPmaxentropypi2(pik)
+    Dmat <- (pi2 - tcrossprod(pik)) / pi2
+    rm(pi2)
+    pikt <- sampling::UPMEpiktildefrompik(pik)
+    wcan <- pikt / (1 - pikt)
+    qmat <- sampling::UPMEqfromw(wcan, n)
+    piv  <- pik
+  }
+
+  ## Target of the fitted working regression: intercept shift c_N of the census fit
+  ## (pi-weighted for unweighted fits, unweighted for design-weighted fits).
+  c_N <- if (wls_use) mean(e) else sum(piv * e) / sum(piv)
+  mu_star <- mu + c_N
+  print(paste("c_N =", signif(c_N, 4)))
 
   registerDoRNG(seed = 11)
 
   final_res <- foreach(
     simnum = 1:SIMNUM,
-    .export = c(
-      # sampling
-      "sample_design_stratified", "quad_Omega_strata",
-      "sample_design_rejective", "make_pi_from_z", "rejective_sample", "var_poisson_approx",
-      # estimation
-      "run_estimators",
-      # params
-      "sampling", "N", "n", "s", "p", "len", "z_sorted_idx", "z", "y", "X", "mu", "seq_K", "wls_use"
-    ),
-    .packages = c("glmnet"),
+    .export = c("sample_design_stratified", "quad_Omega_strata", "sample_design_rejective",
+                "var_ht_exact", "fit_ls", "fit_lasso_beta", "cf_predict", "make_pop_folds",
+                "make_folds_strat_aware", "an_strat", "an_rej_cond", "an_rej", "run_estimators",
+                "sampling", "N", "n", "s", "len", "z_sorted_idx", "y", "X", "mu", "mu_star",
+                "K_use", "wls_use", "an_use", "lasso_only", "pik", "Dmat", "wcan", "qmat", "strat_id"),
+    .packages = c("glmnet", "sampling"),
     .errorhandling = "pass"
   ) %dopar% {
-
-    if (sampling == "stratified") {
-      samp <- sample_design_stratified(N = N, n = n, len = len, z_sorted_idx = z_sorted_idx, y = y, X = X)
-
-      out_w <- run_estimators(
-        sampling = sampling,
-        N=N, n=n, s=s, y=y, X=X, mu=mu,
-        Index=samp$Index, d1=samp$d1, d1_s=samp$d1_s, y_s=samp$y_s, X_s=samp$X_s,
-        n_h=samp$n_h, st=samp$st, cumn_h=samp$cumn_h, len=samp$len,
-        seq_K=seq_K, wls = wls_use
-      )
-
+    samp <- if (sampling == "stratified") {
+      sample_design_stratified(N = N, n = n, len = len, z_sorted_idx = z_sorted_idx)
     } else {
-      samp <- sample_design_rejective(N = N, n = n, z = z, y = y, X = X, gamma = 1)
-
-      out_w <- run_estimators(
-        sampling = sampling,
-        N=N, n=n, s=s, y=y, X=X, mu=mu,
-        Index=samp$Index, pi=samp$pi, d1=samp$d1, d1_s=samp$d1_s, y_s=samp$y_s, X_s=samp$X_s,
-        seq_K=seq_K, wls = wls_use
-      )
+      sample_design_rejective(pik, qmat)
     }
-
-    list(
-      res  = c(out_w$y_res),
-      res2 = c(out_w$sigma_res),
-      res3 = c(ifelse(abs(out_w$y_res - t_y) > 1.96 * out_w$sigma_res, 0, 1)),
-      res4 = out_w$FDR,
-      res5 = out_w$FNR,
-      res6 = c(out_w$bias_res)
-    )
+    out_w <- run_estimators(sampling = sampling, N = N, n = n, s = s, y = y, X = X,
+                            mu = mu, mu_star = mu_star, samp = samp, K = K_use,
+                            wls = wls_use, an = an_use, lasso_only = lasso_only,
+                            pik = pik, Dmat = Dmat, wcan = wcan, strat_id = strat_id)
+    list(res = out_w$y_res, res2 = out_w$sigma_res,
+         res3 = as.numeric(abs(out_w$y_res - t_y) <= 1.96 * out_w$sigma_res),
+         res4 = out_w$FDR, res5 = out_w$FNR)
   }
 
-  final_res1 <- lapply(final_res, `[[`, "res")
-  final_res2 <- lapply(final_res, `[[`, "res2")
-  final_res3 <- lapply(final_res, `[[`, "res3")
-  final_res4 <- lapply(final_res, `[[`, "res4")
-  final_res5 <- lapply(final_res, `[[`, "res5")
-  final_res6 <- lapply(final_res, `[[`, "res6")
-
-  ok <- sapply(final_res1, function(x) is.numeric(unlist(x)))
+  ok <- sapply(final_res, function(x) is.list(x) && is.numeric(unlist(x$res)))
   print(paste("# of failure:", sum(!ok)))
+  if (any(!ok)) print(final_res[!ok][[1]])
 
-  res  <- do.call("rbind", final_res1[ok])
-  res2 <- do.call("rbind", final_res2[ok])
-  res3 <- do.call("rbind", final_res3[ok])
-  res4 <- do.call("rbind", final_res4[ok])
-  res5 <- do.call("rbind", final_res5[ok])
-  res6 <- do.call("rbind", final_res6[ok])
+  res  <- do.call("rbind", lapply(final_res[ok], `[[`, "res"))
+  res2 <- do.call("rbind", lapply(final_res[ok], `[[`, "res2"))
+  res3 <- do.call("rbind", lapply(final_res[ok], `[[`, "res3"))
+  colnames(res3) <- colnames(res)
+  res4 <- unlist(lapply(final_res[ok], `[[`, "res4"))
+  res5 <- unlist(lapply(final_res[ok], `[[`, "res5"))
+  Bok <- nrow(res)
 
   BIAS <- colMeans(res - t_y)
-  SE <- apply(res, 2, function(x) sqrt(var(x) * (length(x) - 1) / length(x)))
+  SD   <- apply(res, 2, function(x) sqrt(var(x) * (length(x) - 1) / length(x)))
   RMSE <- apply(res - t_y, 2, function(x) sqrt(mean(x^2)))
+  RB   <- (colMeans(res2^2) - SD^2) / SD^2
+  CR   <- colMeans(res3)
+  CR_MCSE <- sqrt(CR * (1 - CR) / Bok)
+  CIL  <- colMeans(2 * qnorm(0.975) * res2)
 
-  tmpdf21 <- cbind(BIAS, SE, RMSE)
-  print(xtable(tmpdf21, digits = 2, caption = "Summary of point estimation"))
+  summ <- data.frame(estimator = colnames(res), BIAS = BIAS, SD = SD, RMSE = RMSE,
+                     RB = RB, CR = CR, CR_MCSE = CR_MCSE, CIL = CIL, B = Bok,
+                     p = p, r = r, c_N = c_N, row.names = NULL)
+  write.csv(summ, sprintf("summary_%s_%s.csv", vary_over, format(val)), row.names = FALSE)
+  print(xtable(summ[, c("estimator", "BIAS", "SD", "RMSE", "RB", "CR", "CIL")], digits = 2,
+               caption = sprintf("p = %s, r = %s", p, r)), include.rownames = FALSE)
 
-  BIAS2 <- colMeans(res2^2) - SE^2
-  tmpdf22 <- cbind(RB = BIAS2 / SE^2, CR = colMeans(res3))
-  print(xtable(tmpdf22, digits = 2, caption = "Summary of variance estimation"))
+  summaries[[as.character(val)]] <- summ
+  replicates[[as.character(val)]] <- list(est = res, sigma = res2, t_y = t_y, c_N = c_N)
 
-  boxplot(res, main = paste("p =", p, ", r =", r, ", sampling =", sampling), cex.axis = 0.5)
-  abline(h = t_y, lty = 1, col = 2)
-  abline(v = c(2.5, 6.5), lty = 3)
-
-  SE_res <- cbind(SE_res, SE)
+  SE_res   <- cbind(SE_res, SD)
   RMSE_res <- cbind(RMSE_res, RMSE)
   BIAS_res <- cbind(BIAS_res, BIAS)
-  RB_res <- cbind(RB_res, BIAS2 / SE^2)
-  CR_res <- cbind(CR_res, colMeans(res3))
-  FDR_res <- cbind(FDR_res, res4)
-  FNR_res <- cbind(FNR_res, res5)
-  BIASapprox_res <- cbind(BIASapprox_res, colMeans(res6))
+  RB_res   <- cbind(RB_res, RB)
+  CR_res   <- cbind(CR_res, CR)
+  FDR_res  <- cbind(FDR_res, res4)
+  FNR_res  <- cbind(FNR_res, res5)
 }
 
-if (!interactive()) save.image(paste0(basename(timenow0), ".RData"))
+if (!interactive()) {
+  saveRDS(list(summaries = summaries, replicates = replicates,
+               settings = list(SIMNUM = SIMNUM, N = N, n = n, s = s, K = K_use,
+                               sampling = sampling, vary_over = vary_over, seq = seq,
+                               wls = wls_use, an = an_use, lasso_only = lasso_only,
+                               seed_population = 2, seed_replicates = 11)),
+          "replicates.rds")
+}
 
 timenow2 <- Sys.time()
 print("Running time")
 print(timenow2 - timenow1)
 
-print(xtable(cbind(
-  cbind(BIAS = BIAS_res[,1], SE = SE_res[,1], RMSE = RMSE_res[,1]),
-  cbind(BIAS = BIAS_res[,ncol(BIAS_res)], SE = SE_res[,ncol(SE_res)], RMSE = RMSE_res[,ncol(RMSE_res)])
-)))
-
-print(xtable(cbind(
-  RB = RB_res[,1], CR = CR_res[,1],
-  RB = RB_res[,ncol(RB_res)], CR = CR_res[,ncol(CR_res)]
-)))
-
 colnames(FDR_res) <- seq
-colMeans(FDR_res)
-colMeans(FNR_res)
+print(colMeans(FDR_res))
+print(colMeans(FNR_res))
 
 ## =========================================================
 ## Plot (single panel for this run)
@@ -790,60 +606,36 @@ colMeans(FNR_res)
 colnames(RMSE_res) <- as.character(seq)
 colnames(BIAS_res) <- as.character(seq)
 
-df_rmse <- data.frame(
-  estimator = rep(rownames(RMSE_res), times = ncol(RMSE_res)),
-  x         = rep(as.numeric(colnames(RMSE_res)), each = nrow(RMSE_res)),
-  value     = as.vector(RMSE_res),
-  metric    = "RMSE"
+df_plot <- rbind(
+  data.frame(estimator = rep(rownames(RMSE_res), times = ncol(RMSE_res)),
+             x = rep(as.numeric(colnames(RMSE_res)), each = nrow(RMSE_res)),
+             value = as.vector(RMSE_res), metric = "RMSE"),
+  data.frame(estimator = rep(rownames(BIAS_res), times = ncol(BIAS_res)),
+             x = rep(as.numeric(colnames(BIAS_res)), each = nrow(BIAS_res)),
+             value = as.vector(BIAS_res), metric = "Bias")
 )
-df_bias <- data.frame(
-  estimator = rep(rownames(BIAS_res), times = ncol(BIAS_res)),
-  x         = rep(as.numeric(colnames(BIAS_res)), each = nrow(BIAS_res)),
-  value     = as.vector(BIAS_res),
-  metric    = "Bias"
-)
-
-df_plot <- rbind(df_rmse, df_bias)
 
 # Keep only the four estimators shown in the paper figure.
 keep_est <- c("GREG", "DREG", "GREG.Lasso", "DREG.Lasso")
+keep_est <- keep_est[keep_est %in% df_plot$estimator]
 df_plot  <- subset(df_plot, estimator %in% keep_est)
 df_plot$estimator <- factor(df_plot$estimator, levels = keep_est)
 df_plot$x         <- factor(df_plot$x, levels = seq)
 df_plot$metric    <- factor(df_plot$metric, levels = c("Bias", "RMSE"))
 
-x_label <- vary_over   # "p" or "r"
-
 if (!interactive()) png("linegraph.png", width = 960, height = 560, res = 110)
-
 print(
-  ggplot(
-    df_plot,
-    aes(x = x, y = value,
-        group = interaction(estimator, metric),
-        color = estimator,
-        linetype = metric)
-  ) +
+  ggplot(df_plot, aes(x = x, y = value, group = interaction(estimator, metric),
+                      color = estimator, linetype = metric)) +
     geom_hline(yintercept = 0, color = "grey70", linewidth = 0.3) +
     geom_line(linewidth = 1) +
     geom_point(data = subset(df_plot, metric == "RMSE"), size = 2) +
     scale_linetype_manual(values = c(RMSE = "solid", Bias = "dashed")) +
-    labs(
-      x        = x_label,
-      y        = "RMSE (solid) / Bias (dashed)",
-      color    = "Estimator",
-      linetype = NULL
-    ) +
+    labs(x = vary_over, y = "RMSE (solid) / Bias (dashed)", color = "Estimator", linetype = NULL) +
     theme_bw(base_size = 13) +
-    theme(legend.position = "right",
-          legend.key.width = unit(1.2, "lines"))
+    theme(legend.position = "right", legend.key.width = unit(1.2, "lines"))
 )
-
 if (!interactive()) dev.off()
 
-## Also save the plotting data frame so the combined-panel script can pick it up.
+## Save the plotting data frame for combine_pr_plot.R.
 if (!interactive()) saveRDS(df_plot, file = "plot_df.rds")
-
-############################################################
-## End unified single-file script                           ##
-############################################################

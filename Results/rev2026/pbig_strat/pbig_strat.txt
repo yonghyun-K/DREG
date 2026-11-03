@@ -1,0 +1,53 @@
+[1] "SIMNUM = 1000 | sampling = stratified | fit = OLS"
+[1] "p = 500 , r = -0.75"
+[1] "c_N = -0.1932"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:16:25 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & -2.45 & 140.57 & 140.59 & 0.07 & 0.95 & 568.40 \\ 
+  Diff & 1.42 & 35.40 & 35.43 & -0.01 & 0.95 & 137.91 \\ 
+  Diff.star & 1.42 & 35.40 & 35.43 & -0.01 & 0.95 & 137.91 \\ 
+  GREG.oracle & -2.09 & 35.86 & 35.92 & -0.04 & 0.94 & 137.63 \\ 
+  GREG.Lasso & -21.25 & 42.86 & 47.84 & -0.32 & 0.84 & 137.76 \\ 
+  DREG.Lasso & 1.75 & 40.46 & 40.50 & -0.03 & 0.94 & 155.69 \\ 
+  AnCF.Lasso & 0.65 & 39.98 & 39.99 & -0.00 & 0.94 & 156.31 \\ 
+   \hline
+\end{tabular}
+\caption{p = 500, r = -0.75} 
+\end{table}
+[1] "p = 1000 , r = -0.75"
+[1] "c_N = -0.1804"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:17:58 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & 2.56 & 144.45 & 144.48 & -0.03 & 0.94 & 557.55 \\ 
+  Diff & -0.42 & 38.96 & 38.96 & -0.07 & 0.94 & 146.86 \\ 
+  Diff.star & -0.42 & 38.96 & 38.96 & -0.07 & 0.94 & 146.86 \\ 
+  GREG.oracle & -3.77 & 39.40 & 39.58 & -0.10 & 0.94 & 146.60 \\ 
+  GREG.Lasso & -24.70 & 46.45 & 52.61 & -0.38 & 0.82 & 142.79 \\ 
+  DREG.Lasso & 0.15 & 43.41 & 43.41 & -0.06 & 0.94 & 164.35 \\ 
+  AnCF.Lasso & -0.49 & 43.69 & 43.70 & -0.07 & 0.94 & 164.57 \\ 
+   \hline
+\end{tabular}
+\caption{p = 1000, r = -0.75} 
+\end{table}
+[1] "Running time"
+Time difference of 2.688819 mins
+       500       1000 
+0.04715758 0.02817186 
+res5 res5 
+   0    0 
+null device 
+          1 

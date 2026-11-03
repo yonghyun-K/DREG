@@ -1,0 +1,604 @@
+Output: format=pdf, dir=fig_rev
+starting worker pid=8311 on localhost:11263 at 07:05:40.648
+starting worker pid=8174 on localhost:11263 at 07:05:40.674
+starting worker pid=8145 on localhost:11263 at 07:05:40.678
+starting worker pid=8149 on localhost:11263 at 07:05:40.680
+starting worker pid=8151 on localhost:11263 at 07:05:40.680
+starting worker pid=8377 on localhost:11263 at 07:05:40.680
+starting worker pid=8148 on localhost:11263 at 07:05:40.680
+starting worker pid=8150 on localhost:11263 at 07:05:40.681
+starting worker pid=8165 on localhost:11263 at 07:05:40.681
+starting worker pid=8146 on localhost:11263 at 07:05:40.681
+starting worker pid=8155 on localhost:11263 at 07:05:40.681
+starting worker pid=8154 on localhost:11263 at 07:05:40.682
+starting worker pid=8147 on localhost:11263 at 07:05:40.682
+starting worker pid=8159 on localhost:11263 at 07:05:40.682
+starting worker pid=8152 on localhost:11263 at 07:05:40.683
+starting worker pid=8166 on localhost:11263 at 07:05:40.682
+starting worker pid=8183 on localhost:11263 at 07:05:40.683
+starting worker pid=8157 on localhost:11263 at 07:05:40.684
+starting worker pid=8153 on localhost:11263 at 07:05:40.684
+starting worker pid=8187 on localhost:11263 at 07:05:40.684
+starting worker pid=8162 on localhost:11263 at 07:05:40.685
+starting worker pid=8209 on localhost:11263 at 07:05:40.685
+starting worker pid=8193 on localhost:11263 at 07:05:40.685
+starting worker pid=8161 on localhost:11263 at 07:05:40.685
+starting worker pid=8171 on localhost:11263 at 07:05:40.685
+starting worker pid=8160 on localhost:11263 at 07:05:40.686
+starting worker pid=8144 on localhost:11263 at 07:05:40.686
+starting worker pid=8168 on localhost:11263 at 07:05:40.686
+starting worker pid=8185 on localhost:11263 at 07:05:40.687
+starting worker pid=8156 on localhost:11263 at 07:05:40.688
+starting worker pid=8234 on localhost:11263 at 07:05:40.688
+starting worker pid=8189 on localhost:11263 at 07:05:40.689
+starting worker pid=8158 on localhost:11263 at 07:05:40.689
+starting worker pid=8163 on localhost:11263 at 07:05:40.689
+starting worker pid=8198 on localhost:11263 at 07:05:40.689
+starting worker pid=8211 on localhost:11263 at 07:05:40.689
+starting worker pid=8215 on localhost:11263 at 07:05:40.690
+starting worker pid=8229 on localhost:11263 at 07:05:40.690
+starting worker pid=8167 on localhost:11263 at 07:05:40.690
+starting worker pid=8263 on localhost:11263 at 07:05:40.690
+starting worker pid=8257 on localhost:11263 at 07:05:40.690
+starting worker pid=8220 on localhost:11263 at 07:05:40.691
+starting worker pid=8191 on localhost:11263 at 07:05:40.691
+starting worker pid=8277 on localhost:11263 at 07:05:40.691
+starting worker pid=8345 on localhost:11263 at 07:05:40.692
+starting worker pid=8299 on localhost:11263 at 07:05:40.692
+starting worker pid=8221 on localhost:11263 at 07:05:40.692
+starting worker pid=8306 on localhost:11263 at 07:05:40.692
+starting worker pid=8206 on localhost:11263 at 07:05:40.692
+starting worker pid=8287 on localhost:11263 at 07:05:40.692
+starting worker pid=8196 on localhost:11263 at 07:05:40.692
+starting worker pid=8204 on localhost:11263 at 07:05:40.692
+starting worker pid=8224 on localhost:11263 at 07:05:40.694
+starting worker pid=8245 on localhost:11263 at 07:05:40.694
+starting worker pid=8178 on localhost:11263 at 07:05:40.694
+starting worker pid=8327 on localhost:11263 at 07:05:40.695
+starting worker pid=8270 on localhost:11263 at 07:05:40.694
+starting worker pid=8320 on localhost:11263 at 07:05:40.696
+starting worker pid=8433 on localhost:11263 at 07:05:40.696
+starting worker pid=8418 on localhost:11263 at 07:05:40.696
+starting worker pid=8503 on localhost:11263 at 07:05:40.697
+starting worker pid=8449 on localhost:11263 at 07:05:40.697
+starting worker pid=8468 on localhost:11263 at 07:05:40.697
+starting worker pid=8560 on localhost:11263 at 07:05:40.697
+starting worker pid=8340 on localhost:11263 at 07:05:40.697
+starting worker pid=8208 on localhost:11263 at 07:05:40.697
+starting worker pid=8251 on localhost:11263 at 07:05:40.697
+starting worker pid=8164 on localhost:11263 at 07:05:40.697
+starting worker pid=8527 on localhost:11263 at 07:05:40.698
+starting worker pid=8200 on localhost:11263 at 07:05:40.698
+starting worker pid=8354 on localhost:11263 at 07:05:40.698
+starting worker pid=8664 on localhost:11263 at 07:05:40.698
+starting worker pid=8238 on localhost:11263 at 07:05:40.698
+starting worker pid=8397 on localhost:11263 at 07:05:40.698
+starting worker pid=8407 on localhost:11263 at 07:05:40.698
+starting worker pid=8334 on localhost:11263 at 07:05:40.698
+starting worker pid=8597 on localhost:11263 at 07:05:40.699
+starting worker pid=8617 on localhost:11263 at 07:05:40.699
+starting worker pid=8686 on localhost:11263 at 07:05:40.699
+starting worker pid=8541 on localhost:11263 at 07:05:40.699
+starting worker pid=8698 on localhost:11263 at 07:05:40.699
+starting worker pid=8371 on localhost:11263 at 07:05:40.699
+starting worker pid=8676 on localhost:11263 at 07:05:40.700
+starting worker pid=8578 on localhost:11263 at 07:05:40.700
+starting worker pid=8387 on localhost:11263 at 07:05:40.700
+starting worker pid=8392 on localhost:11263 at 07:05:40.700
+starting worker pid=8632 on localhost:11263 at 07:05:40.701
+starting worker pid=8647 on localhost:11263 at 07:05:40.701
+starting worker pid=8202 on localhost:11263 at 07:05:40.701
+starting worker pid=8516 on localhost:11263 at 07:05:40.701
+starting worker pid=8710 on localhost:11263 at 07:05:40.701
+starting worker pid=8489 on localhost:11263 at 07:05:40.702
+starting worker pid=8738 on localhost:11263 at 07:05:40.702
+starting worker pid=8754 on localhost:11263 at 07:05:40.702
+starting worker pid=8725 on localhost:11263 at 07:05:40.702
+[stratified/nonlinear] SIMNUM=1000, workers=95, K=5, fit=OLS, np={spline,rf}, An=TRUE
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+     estimator    BIAS   SD  RMSE      RB    CR CR_MCSE CIL    B
+1         Diff    2.13 38.3  38.4  0.0521 0.954 0.00662 154 1000
+2  GREG.linear  -59.22 85.6 104.1 -0.5090 0.724 0.01414 234 1000
+3  DREG.linear    3.49 93.9  94.0 -0.0272 0.943 0.00733 362 1000
+4  AnCF.linear    2.89 94.3  94.3 -0.0435 0.945 0.00721 360 1000
+5  GREG.spline  -11.87 56.9  58.2 -0.1847 0.915 0.00882 201 1000
+6  DREG.spline    4.82 58.3  58.5 -0.0324 0.942 0.00739 224 1000
+7  AnCF.spline    4.55 58.4  58.6 -0.0456 0.944 0.00727 223 1000
+8      GREG.rf -128.90 55.9 140.5 -0.7809 0.080 0.00858 102 1000
+9      DREG.rf    4.12 61.2  61.3 -0.0253 0.942 0.00739 236 1000
+10     AnCF.rf    3.32 62.0  62.1 -0.0599 0.940 0.00751 235 1000
+Wrote fig_rev/supp_nonlinear_stratified.pdf
+starting worker pid=97824 on localhost:11263 at 07:05:53.609
+starting worker pid=97668 on localhost:11263 at 07:05:53.638
+starting worker pid=97675 on localhost:11263 at 07:05:53.638
+starting worker pid=97682 on localhost:11263 at 07:05:53.638
+starting worker pid=97686 on localhost:11263 at 07:05:53.639
+starting worker pid=97681 on localhost:11263 at 07:05:53.639
+starting worker pid=97676 on localhost:11263 at 07:05:53.640
+starting worker pid=97671 on localhost:11263 at 07:05:53.640
+starting worker pid=97687 on localhost:11263 at 07:05:53.640
+starting worker pid=97669 on localhost:11263 at 07:05:53.640
+starting worker pid=97695 on localhost:11263 at 07:05:53.640
+starting worker pid=97683 on localhost:11263 at 07:05:53.641
+starting worker pid=97684 on localhost:11263 at 07:05:53.641
+starting worker pid=97670 on localhost:11263 at 07:05:53.642
+starting worker pid=97706 on localhost:11263 at 07:05:53.642
+starting worker pid=97674 on localhost:11263 at 07:05:53.642
+starting worker pid=98115 on localhost:11263 at 07:05:53.642
+starting worker pid=97679 on localhost:11263 at 07:05:53.642
+starting worker pid=97677 on localhost:11263 at 07:05:53.642
+starting worker pid=97699 on localhost:11263 at 07:05:53.643
+starting worker pid=97691 on localhost:11263 at 07:05:53.643
+starting worker pid=97692 on localhost:11263 at 07:05:53.644
+starting worker pid=97716 on localhost:11263 at 07:05:53.644
+starting worker pid=97730 on localhost:11263 at 07:05:53.645
+starting worker pid=97705 on localhost:11263 at 07:05:53.645
+starting worker pid=97680 on localhost:11263 at 07:05:53.645
+starting worker pid=97728 on localhost:11263 at 07:05:53.645
+starting worker pid=97717 on localhost:11263 at 07:05:53.645
+starting worker pid=97685 on localhost:11263 at 07:05:53.645
+starting worker pid=97672 on localhost:11263 at 07:05:53.646
+starting worker pid=97710 on localhost:11263 at 07:05:53.646
+starting worker pid=97713 on localhost:11263 at 07:05:53.646
+starting worker pid=97678 on localhost:11263 at 07:05:53.646
+starting worker pid=97688 on localhost:11263 at 07:05:53.647
+starting worker pid=98180 on localhost:11263 at 07:05:53.647
+starting worker pid=97689 on localhost:11263 at 07:05:53.647
+starting worker pid=97763 on localhost:11263 at 07:05:53.648
+starting worker pid=97727 on localhost:11263 at 07:05:53.648
+starting worker pid=97720 on localhost:11263 at 07:05:53.648
+starting worker pid=97709 on localhost:11263 at 07:05:53.648
+starting worker pid=97738 on localhost:11263 at 07:05:53.649
+starting worker pid=97735 on localhost:11263 at 07:05:53.650
+starting worker pid=97673 on localhost:11263 at 07:05:53.649
+starting worker pid=97767 on localhost:11263 at 07:05:53.650
+starting worker pid=97724 on localhost:11263 at 07:05:53.650
+starting worker pid=97723 on localhost:11263 at 07:05:53.650
+starting worker pid=97726 on localhost:11263 at 07:05:53.651
+starting worker pid=97747 on localhost:11263 at 07:05:53.651
+starting worker pid=97752 on localhost:11263 at 07:05:53.651
+starting worker pid=97745 on localhost:11263 at 07:05:53.651
+starting worker pid=97781 on localhost:11263 at 07:05:53.651
+starting worker pid=97787 on localhost:11263 at 07:05:53.652
+starting worker pid=97800 on localhost:11263 at 07:05:53.652
+starting worker pid=97832 on localhost:11263 at 07:05:53.652
+starting worker pid=97932 on localhost:11263 at 07:05:53.653
+starting worker pid=97969 on localhost:11263 at 07:05:53.653
+starting worker pid=97794 on localhost:11263 at 07:05:53.654
+starting worker pid=97926 on localhost:11263 at 07:05:53.654
+starting worker pid=97773 on localhost:11263 at 07:05:53.655
+starting worker pid=97893 on localhost:11263 at 07:05:53.655
+starting worker pid=98001 on localhost:11263 at 07:05:53.655
+starting worker pid=97838 on localhost:11263 at 07:05:53.655
+starting worker pid=98133 on localhost:11263 at 07:05:53.656
+starting worker pid=97690 on localhost:11263 at 07:05:53.656
+starting worker pid=97855 on localhost:11263 at 07:05:53.656
+starting worker pid=97700 on localhost:11263 at 07:05:53.656
+starting worker pid=98168 on localhost:11263 at 07:05:53.656
+starting worker pid=97951 on localhost:11263 at 07:05:53.656
+starting worker pid=97983 on localhost:11263 at 07:05:53.656
+starting worker pid=98034 on localhost:11263 at 07:05:53.657
+starting worker pid=98099 on localhost:11263 at 07:05:53.657
+starting worker pid=98059 on localhost:11263 at 07:05:53.657
+starting worker pid=97940 on localhost:11263 at 07:05:53.657
+starting worker pid=97805 on localhost:11263 at 07:05:53.657
+starting worker pid=97850 on localhost:11263 at 07:05:53.657
+starting worker pid=97749 on localhost:11263 at 07:05:53.657
+starting worker pid=97902 on localhost:11263 at 07:05:53.657
+starting worker pid=97815 on localhost:11263 at 07:05:53.658
+starting worker pid=97919 on localhost:11263 at 07:05:53.658
+starting worker pid=98212 on localhost:11263 at 07:05:53.658
+starting worker pid=98050 on localhost:11263 at 07:05:53.658
+starting worker pid=98148 on localhost:11263 at 07:05:53.658
+starting worker pid=98017 on localhost:11263 at 07:05:53.659
+starting worker pid=98450 on localhost:11263 at 07:05:53.659
+starting worker pid=98237 on localhost:11263 at 07:05:53.659
+starting worker pid=98085 on localhost:11263 at 07:05:53.659
+starting worker pid=98224 on localhost:11263 at 07:05:53.659
+starting worker pid=97913 on localhost:11263 at 07:05:53.659
+starting worker pid=98259 on localhost:11263 at 07:05:53.660
+starting worker pid=97865 on localhost:11263 at 07:05:53.660
+starting worker pid=97881 on localhost:11263 at 07:05:53.660
+starting worker pid=97741 on localhost:11263 at 07:05:53.661
+starting worker pid=97874 on localhost:11263 at 07:05:53.663
+starting worker pid=98251 on localhost:11263 at 07:05:53.664
+starting worker pid=98197 on localhost:11263 at 07:05:53.667
+[rejective/nonlinear] SIMNUM=1000, workers=95, K=5, fit=OLS, np={spline,rf}, An=TRUE
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+Loading required package: foreach
+Loading required package: rngtools
+     estimator     BIAS    SD  RMSE        RB    CR CR_MCSE CIL    B
+1         Diff    1.438  79.9  79.9  0.007271 0.918 0.00868 287 1000
+2  GREG.linear  -99.175 103.4 143.2 -0.377457 0.669 0.01488 311 1000
+3  DREG.linear   -4.364 123.0 123.1  0.000399 0.933 0.00791 470 1000
+4  AnCF.linear   -5.066 124.2 124.4  0.003572 0.935 0.00780 473 1000
+5  GREG.spline  -21.976  90.7  93.3 -0.063757 0.886 0.01005 329 1000
+6  DREG.spline    0.960  94.4  94.4  0.017911 0.933 0.00791 358 1000
+7  AnCF.spline    0.607  94.8  94.8  0.026096 0.928 0.00817 360 1000
+8      GREG.rf -193.012  72.1 206.0 -0.608545 0.092 0.00914 166 1000
+9      DREG.rf    0.590  99.6  99.6  0.031152 0.944 0.00727 376 1000
+10     AnCF.rf    0.119 100.2 100.2  0.038071 0.940 0.00751 379 1000
+Wrote fig_rev/supp_nonlinear_rejective.pdf
+Wrote fig_rev/supp_nonlinear_both.pdf
+Warning messages:
+1: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sampling, len, z_sorted_idx, z, y, mu, t_y, K, wls, an, X_lin, X_np, np_methods, spline_df, rf_trees, rf_mtry, rf_min_node, pik, Dmat, wcan, strat_id
+2: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sampling, len, z_sorted_idx, z, y, mu, t_y, K, wls, an, X_lin, X_np, np_methods, spline_df, rf_trees, rf_mtry, rf_min_node, pik, Dmat, wcan, strat_id
+Done.

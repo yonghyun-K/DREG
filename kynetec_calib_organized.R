@@ -143,6 +143,65 @@ estimate_total_greg <- function(y, X_s, d_s, X_total, wls = FALSE, return_resid 
   total_hat
 }
 
+# --- Revision (JSSAM-2026-121): population-fold DREG with aggregate auxiliaries ---
+# The population-fold DREG estimator, integrated over the fold labels of the
+# nonsampled units (each nonsampled unit belongs to fold k with probability 1/K):
+#   t_hat = sum_A mhat^(-k_i)(x_i) + (1/K) sum_k sum_{U \ A} mhat^(-k)(x)
+#           + sum_A d_i {y_i - mhat^(-k_i)(x_i)}.
+# For a linear fit, sum_{U \ A} mhat^(-k)(x) = (X_total - sum_A x_i)' beta^(-k), so only
+# the auxiliary totals are needed.
+estimate_total_dreg_pop <- function(y, X_s, d_s, X_total, fold_id, wls = FALSE, return_resid = FALSE) {
+  X_s <- as.matrix(X_s); y <- as.numeric(y); d_s <- as.numeric(d_s)
+  K <- max(fold_id)
+  X_ns <- X_total - colSums(X_s)          # auxiliary totals of the nonsampled units
+  pred_ns <- numeric(K)
+  resid_cf <- rep(NA_real_, length(y))
+  for (k in seq_len(K)) {
+    test  <- which(fold_id == k)
+    train <- which(fold_id != k)
+    beta_k <- safe_lm_coef(y = y[train], X = X_s[train, , drop = FALSE], w = if (wls) d_s[train] else NULL)
+    pred_ns[k] <- sum(X_ns * beta_k)
+    resid_cf[test] <- y[test] - drop(X_s[test, , drop = FALSE] %*% beta_k)
+  }
+  total_hat <- sum(y - resid_cf) + mean(pred_ns) + sum(d_s * resid_cf)
+  if (return_resid) return(list(total = total_hat, resid = resid_cf))
+  total_hat
+}
+
+# Variance strata for the stratified-SRSWOR variance estimator (4.11): a stratum with
+# a single sampled unit is merged with the adjacent farm-size stratum of the same crop
+# (collapsed strata; conservative).
+make_var_groups <- function(strata_params) {
+  sp <- strata_params
+  sp$Crop <- sub("[.].*$", "", sp$stratum)
+  sp$Size <- suppressWarnings(as.numeric(sub("^[^.]*[.]", "", sp$stratum)))
+  sp$group <- sp$stratum
+  for (cr in unique(sp$Crop)) {
+    idx <- which(sp$Crop == cr)
+    idx <- idx[order(sp$Size[idx])]
+    for (j in seq_along(idx)) {
+      i <- idx[j]
+      if (sp$n_h[i] <= 1 && length(idx) > 1) {
+        nb <- if (j > 1) idx[j - 1] else idx[j + 1]
+        sp$group[sp$group == sp$group[i]] <- sp$group[nb]
+      }
+    }
+  }
+  sp[, c("stratum", "group", "N_h", "n_h")]
+}
+
+varhat_collapsed <- function(e, d, stratum_id, var_groups) {
+  g <- var_groups$group[match(as.character(stratum_id), var_groups$stratum)]
+  Ng <- tapply(var_groups$N_h, var_groups$group, sum)
+  de <- as.numeric(d) * as.numeric(e)
+  v <- 0
+  for (gg in unique(g)) {
+    x <- de[g == gg]; ng <- length(x)
+    if (ng > 1) v <- v + (1 - ng / Ng[[gg]]) * ng / (ng - 1) * sum((x - mean(x))^2)
+  }
+  v
+}
+
 estimate_total_dreg <- function(y, X_s, d_s, X_total, fold_id, wls = FALSE, return_resid = FALSE) {
   # Cross-fitted (sample-split) regression total.
   #
@@ -270,7 +329,9 @@ estimate_total_gam_greg <- function(y, df_s, d_s, pop_df,
 
 estimate_total_gam_dreg <- function(y, df_s, d_s, pop_df, fold_id,
                                    wls = FALSE, gam_k = 10, seed = 1,
-                                   return_resid = FALSE) {
+                                   return_resid = FALSE, Nns = NULL) {
+  # Revision: if Nns (nonsampled farm counts per population cell) is given, return the
+  # population-fold DREG integrated over the labels of the nonsampled units.
   # Cross-fitted version of GAM model-assisted estimator.
   # Uses out-of-fold residuals for main.R-style variance estimation.
 
@@ -327,12 +388,12 @@ estimate_total_gam_dreg <- function(y, df_s, d_s, pop_df, fold_id,
     pred_U[!is.finite(pred_U)] <- 0
     pred_te[!is.finite(pred_te)] <- 0
 
-    pred_totals[k] <- sum(as.numeric(pop_df$Farms) * as.numeric(pred_U))
+    pred_totals[k] <- sum((if (is.null(Nns)) as.numeric(pop_df$Farms) else Nns) * as.numeric(pred_U))
 
     resid_cf[test] <- y[test] - as.numeric(pred_te)
   }
 
-  total_hat <- mean(pred_totals) + sum(d_s * resid_cf)
+  total_hat <- (if (is.null(Nns)) 0 else sum(y - resid_cf)) + mean(pred_totals) + sum(d_s * resid_cf)
 
   if (return_resid) return(list(total = total_hat, resid = resid_cf))
   total_hat
@@ -396,7 +457,8 @@ estimate_total_rf_dreg <- function(y, df_s, d_s, pop_df, fold_id,
                                   num_trees = 200, mtry = NULL, min_node_size = 20,
                                   num_threads = 1, verbose = FALSE,
                                   seed = 1,
-                                  return_resid = FALSE) {
+                                  return_resid = FALSE, Nns = NULL) {
+  # Revision: see estimate_total_gam_dreg for Nns.
   # Cross-fitted ranger estimator + out-of-fold residuals.
 
   if (!requireNamespace("ranger", quietly = TRUE)) {
@@ -444,11 +506,11 @@ estimate_total_rf_dreg <- function(y, df_s, d_s, pop_df, fold_id,
     pred_U[!is.finite(pred_U)] <- 0
     pred_te[!is.finite(pred_te)] <- 0
 
-    pred_totals[k] <- sum(as.numeric(pop_df$Farms) * as.numeric(pred_U))
+    pred_totals[k] <- sum((if (is.null(Nns)) as.numeric(pop_df$Farms) else Nns) * as.numeric(pred_U))
     resid_cf[test] <- y[test] - as.numeric(pred_te)
   }
 
-  total_hat <- mean(pred_totals) + sum(d_s * resid_cf)
+  total_hat <- (if (is.null(Nns)) 0 else sum(y - resid_cf)) + mean(pred_totals) + sum(d_s * resid_cf)
 
   if (return_resid) return(list(total = total_hat, resid = resid_cf))
   total_hat
@@ -1053,6 +1115,14 @@ pop_np <- data.frame(
 )
 pop_np$CRD_num <- suppressWarnings(as.numeric(as.character(pop_np$CRD_fac)))
 
+# Revision: nonsampled farm counts per (Crop, CRD) cell for the population-fold DREG,
+# and collapsed variance strata (singleton strata merged within crop).
+n_cell <- table(paste(data_np$CropNm, data_np$CRD_fac))
+n_cell_U <- as.numeric(n_cell[paste(pop_np$CropNm, pop_np$CRD_fac)]); n_cell_U[is.na(n_cell_U)] <- 0
+Nns_cell <- pmax(pop_np$Farms - n_cell_U, 0)
+var_groups <- make_var_groups(strata_params)
+vhat <- function(e) varhat_collapsed(e = e, d = d, stratum_id = stratum_id, var_groups = var_groups)
+
 # Pre-allocate results
 res_list <- vector("list", length(y_targets))
 
@@ -1073,7 +1143,7 @@ for (j in seq_along(y_targets)) {
   )
   est_reg <- reg_fit$total
 
-  dreg_fit <- estimate_total_dreg(
+  dreg_fit <- estimate_total_dreg_pop(
     y, X_s = Xs_calib, d_s = d, X_total = X_total,
     fold_id = fold_id, wls = ss_wls, return_resid = TRUE
   )
@@ -1092,7 +1162,7 @@ for (j in seq_along(y_targets)) {
   dreg_gam_fit <- estimate_total_gam_dreg(
     y = y, df_s = data_np[, c("CropNm", "CRD_fac", "CRD_num")], d_s = d,
     pop_df = pop_np[, c("CropNm", "CRD_fac", "CRD_num", "Farms")],
-    fold_id = fold_id,
+    fold_id = fold_id, Nns = Nns_cell,
     wls = ss_wls, gam_k = gam_k,
     seed = ss_seed + 1000L + 10L * j,
     return_resid = TRUE
@@ -1114,7 +1184,7 @@ for (j in seq_along(y_targets)) {
   dreg_rf_fit <- estimate_total_rf_dreg(
     y = y, df_s = data_np[, c("CropNm", "CRD_fac")], d_s = d,
     pop_df = pop_np[, c("CropNm", "CRD_fac", "Farms")],
-    fold_id = fold_id,
+    fold_id = fold_id, Nns = Nns_cell,
     wls = ss_wls,
     num_trees = rf_num_trees, mtry = rf_mtry, min_node_size = rf_min_node_size,
     num_threads = rf_num_threads, verbose = rf_verbose,
@@ -1125,26 +1195,26 @@ for (j in seq_along(y_targets)) {
 
   ## ---- Standard errors (design-based) ----
   # HT: use y itself
-  se_ht <- sqrt(varhat_stratified(e = y, stratum_id = stratum_id, strata_params = strata_params))
+  se_ht <- sqrt(vhat(y))
 
   # OLS REG: residual linearization
-  se_reg <- sqrt(varhat_stratified(e = reg_fit$resid, stratum_id = stratum_id, strata_params = strata_params))
+  se_reg <- sqrt(vhat(reg_fit$resid))
 
   # OLS DREG: cross-fitted residuals (main.R style)
-  se_dreg <- sqrt(varhat_stratified(e = dreg_fit$resid, stratum_id = stratum_id, strata_params = strata_params))
+  se_dreg <- sqrt(vhat(dreg_fit$resid))
 
   # GAM / RF: residual linearization; DREG versions: cross-fitted residuals
   se_spline <- if (all(is.na(gam_fit$resid))) NA_real_ else
-    sqrt(varhat_stratified(e = gam_fit$resid, stratum_id = stratum_id, strata_params = strata_params))
+    sqrt(vhat(gam_fit$resid))
 
   se_dreg_spline <- if (all(is.na(dreg_gam_fit$resid))) NA_real_ else
-    sqrt(varhat_stratified(e = dreg_gam_fit$resid, stratum_id = stratum_id, strata_params = strata_params))
+    sqrt(vhat(dreg_gam_fit$resid))
 
   se_rf <- if (all(is.na(rf_fit$resid))) NA_real_ else
-    sqrt(varhat_stratified(e = rf_fit$resid, stratum_id = stratum_id, strata_params = strata_params))
+    sqrt(vhat(rf_fit$resid))
 
   se_dreg_rf <- if (all(is.na(dreg_rf_fit$resid))) NA_real_ else
-    sqrt(varhat_stratified(e = dreg_rf_fit$resid, stratum_id = stratum_id, strata_params = strata_params))
+    sqrt(vhat(dreg_rf_fit$resid))
 
   res_list[[j]] <- data.frame(
     target = yname,
@@ -1183,6 +1253,19 @@ for (nm in estimator_cols) {
 }
 
 print(res_est)
+
+# Revision: save estimates and design facts for the Supplementary Material.
+design_facts <- data.frame(state = stateNm, n = nrow(data), farms = length(unique(data$FarmID)),
+  N = N_total, strata = nrow(strata_params), strata_n1 = sum(strata_params$n_h <= 1),
+  var_groups = length(unique(var_groups$group)), Nh_reset = sum(strata_params$N_h == strata_params$n_h + 1),
+  p_linear = ncol(Xs_calib), acres_cols = sum(colnames(Xs_calib) %in% names(AcresTotal)),
+  farms_cols = sum(colnames(Xs_calib) %in% names(FarmsTotal)), cells = nrow(pop_np),
+  crops = length(unique(data$Crop)), K = ss_K, seed = ss_seed)
+print(design_facts)
+if (exists("out_csv_dir")) {
+  write.csv(res_est, file.path(out_csv_dir, paste0("app_estimates_", stateNm, ".csv")), row.names = FALSE)
+  write.csv(design_facts, file.path(out_csv_dir, paste0("app_design_", stateNm, ".csv")), row.names = FALSE)
+}
 
 ## ---- VISUALIZE ESTIMATOR PERFORMANCE (FOCUS TARGETS) ----------------------
 # By default, we visualize only Herbicide / Fungicide / Insecticide.

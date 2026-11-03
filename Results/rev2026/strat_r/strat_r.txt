@@ -1,0 +1,184 @@
+[1] "SIMNUM = 2000 | sampling = stratified | fit = OLS"
+[1] "p = 90 , r = -0.75"
+[1] "c_N = -0.1961"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 06:57:17 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & -3.33 & 145.23 & 145.27 & -0.03 & 0.95 & 559.61 \\ 
+  Diff & -0.38 & 39.03 & 39.03 & 0.01 & 0.95 & 153.30 \\ 
+  Diff.star & -0.38 & 39.03 & 39.03 & 0.01 & 0.95 & 153.30 \\ 
+  GREG.oracle & -3.60 & 39.54 & 39.71 & -0.03 & 0.94 & 152.49 \\ 
+  GREG & -62.85 & 50.05 & 80.35 & -0.47 & 0.57 & 142.77 \\ 
+  DREG & 0.29 & 54.47 & 54.47 & -0.01 & 0.95 & 212.44 \\ 
+  AnCF & -1.02 & 54.41 & 54.42 & -0.00 & 0.94 & 212.40 \\ 
+  GREG.Lasso & -12.42 & 41.77 & 43.58 & -0.13 & 0.91 & 152.19 \\ 
+  DREG.Lasso & 0.69 & 41.89 & 41.89 & -0.01 & 0.95 & 163.37 \\ 
+  AnCF.Lasso & -0.46 & 42.07 & 42.07 & -0.01 & 0.95 & 163.39 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = -0.75} 
+\end{table}
+[1] "p = 90 , r = -0.5"
+[1] "c_N = -0.1336"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 06:58:04 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & -1.75 & 145.45 & 145.46 & 0.02 & 0.95 & 573.84 \\ 
+  Diff & -1.01 & 46.49 & 46.50 & 0.01 & 0.95 & 183.09 \\ 
+  Diff.star & -1.01 & 46.49 & 46.50 & 0.01 & 0.95 & 183.09 \\ 
+  GREG.oracle & -3.55 & 46.65 & 46.79 & -0.02 & 0.94 & 180.87 \\ 
+  GREG & -44.81 & 56.26 & 71.92 & -0.47 & 0.72 & 159.73 \\ 
+  DREG & 0.87 & 60.40 & 60.40 & -0.00 & 0.95 & 235.77 \\ 
+  AnCF & 0.18 & 60.66 & 60.66 & -0.01 & 0.94 & 236.11 \\ 
+  GREG.Lasso & -10.39 & 47.89 & 49.00 & -0.10 & 0.93 & 177.57 \\ 
+  DREG.Lasso & -0.38 & 48.26 & 48.26 & 0.02 & 0.95 & 190.96 \\ 
+  AnCF.Lasso & -0.88 & 48.29 & 48.30 & 0.02 & 0.95 & 191.10 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = -0.5} 
+\end{table}
+[1] "p = 90 , r = -0.25"
+[1] "c_N = -0.06704"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 06:58:52 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & 0.53 & 151.03 & 151.03 & -0.03 & 0.95 & 583.20 \\ 
+  Diff & -0.83 & 50.03 & 50.04 & 0.02 & 0.95 & 197.38 \\ 
+  Diff.star & -0.83 & 50.03 & 50.04 & 0.02 & 0.95 & 197.38 \\ 
+  GREG.oracle & -2.12 & 50.14 & 50.18 & -0.01 & 0.95 & 194.97 \\ 
+  GREG & -25.64 & 59.02 & 64.35 & -0.47 & 0.82 & 167.84 \\ 
+  DREG & -1.14 & 62.98 & 62.99 & 0.00 & 0.95 & 246.84 \\ 
+  AnCF & -0.96 & 62.87 & 62.87 & 0.01 & 0.95 & 246.72 \\ 
+  GREG.Lasso & -5.87 & 51.61 & 51.95 & -0.11 & 0.93 & 191.02 \\ 
+  DREG.Lasso & -0.56 & 52.24 & 52.24 & 0.01 & 0.95 & 205.23 \\ 
+  AnCF.Lasso & -0.78 & 52.30 & 52.31 & 0.00 & 0.95 & 204.99 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = -0.25} 
+\end{table}
+[1] "p = 90 , r = 0"
+[1] "c_N = 0.01111"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 06:59:40 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & 0.77 & 153.06 & 153.06 & -0.03 & 0.95 & 588.91 \\ 
+  Diff & 0.75 & 52.58 & 52.58 & -0.01 & 0.95 & 205.06 \\ 
+  Diff.star & 0.75 & 52.58 & 52.58 & -0.01 & 0.95 & 205.06 \\ 
+  GREG.oracle & 0.60 & 53.05 & 53.06 & -0.04 & 0.94 & 203.14 \\ 
+  GREG & -0.83 & 59.93 & 59.94 & -0.46 & 0.84 & 172.14 \\ 
+  DREG & 0.47 & 63.77 & 63.77 & 0.03 & 0.95 & 253.05 \\ 
+  AnCF & -0.16 & 64.20 & 64.20 & 0.01 & 0.94 & 252.77 \\ 
+  GREG.Lasso & 0.29 & 54.15 & 54.15 & -0.12 & 0.93 & 198.76 \\ 
+  DREG.Lasso & 0.52 & 54.86 & 54.86 & -0.01 & 0.95 & 213.22 \\ 
+  AnCF.Lasso & 0.61 & 54.98 & 54.98 & -0.02 & 0.94 & 213.02 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = 0} 
+\end{table}
+[1] "p = 90 , r = 0.25"
+[1] "c_N = 0.08699"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:00:27 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & -8.16 & 149.55 & 149.77 & -0.00 & 0.95 & 585.38 \\ 
+  Diff & -1.10 & 51.33 & 51.34 & -0.02 & 0.95 & 199.37 \\ 
+  Diff.star & -1.10 & 51.33 & 51.34 & -0.02 & 0.95 & 199.37 \\ 
+  GREG.oracle & 0.08 & 51.89 & 51.89 & -0.05 & 0.94 & 198.21 \\ 
+  GREG & 20.78 & 59.60 & 63.12 & -0.48 & 0.81 & 168.43 \\ 
+  DREG & -1.27 & 63.31 & 63.33 & -0.00 & 0.94 & 247.62 \\ 
+  AnCF & -1.33 & 63.93 & 63.94 & -0.02 & 0.95 & 247.53 \\ 
+  GREG.Lasso & 2.87 & 53.01 & 53.08 & -0.13 & 0.93 & 193.88 \\ 
+  DREG.Lasso & -1.52 & 53.52 & 53.54 & -0.01 & 0.95 & 207.97 \\ 
+  AnCF.Lasso & -1.49 & 53.91 & 53.93 & -0.03 & 0.95 & 207.65 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = 0.25} 
+\end{table}
+[1] "p = 90 , r = 0.5"
+[1] "c_N = 0.1597"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:01:15 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & 2.21 & 149.53 & 149.55 & -0.01 & 0.94 & 581.33 \\ 
+  Diff & 1.39 & 47.24 & 47.26 & 0.00 & 0.95 & 185.31 \\ 
+  Diff.star & 1.39 & 47.24 & 47.26 & 0.00 & 0.95 & 185.31 \\ 
+  GREG.oracle & 3.69 & 47.86 & 48.00 & -0.03 & 0.94 & 184.77 \\ 
+  GREG & 43.93 & 57.65 & 72.48 & -0.50 & 0.72 & 159.03 \\ 
+  DREG & 1.46 & 61.37 & 61.39 & -0.04 & 0.94 & 234.76 \\ 
+  AnCF & 1.86 & 61.14 & 61.16 & -0.04 & 0.94 & 234.50 \\ 
+  GREG.Lasso & 10.07 & 49.36 & 50.38 & -0.12 & 0.92 & 181.07 \\ 
+  DREG.Lasso & 1.07 & 49.81 & 49.82 & -0.01 & 0.95 & 194.25 \\ 
+  AnCF.Lasso & 1.58 & 49.95 & 49.98 & -0.01 & 0.95 & 194.11 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = 0.5} 
+\end{table}
+[1] "p = 90 , r = 0.75"
+[1] "c_N = 0.235"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:02:02 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & 1.65 & 148.76 & 148.77 & -0.03 & 0.94 & 572.99 \\ 
+  Diff & -0.01 & 39.36 & 39.36 & -0.04 & 0.95 & 150.56 \\ 
+  Diff.star & -0.01 & 39.36 & 39.36 & -0.04 & 0.95 & 150.56 \\ 
+  GREG.oracle & 3.89 & 39.91 & 40.10 & -0.07 & 0.94 & 151.01 \\ 
+  GREG & 65.92 & 50.23 & 82.88 & -0.50 & 0.53 & 139.12 \\ 
+  DREG & -0.32 & 54.61 & 54.61 & -0.06 & 0.94 & 207.16 \\ 
+  AnCF & 0.68 & 54.15 & 54.15 & -0.05 & 0.94 & 206.95 \\ 
+  GREG.Lasso & 13.99 & 41.65 & 43.94 & -0.15 & 0.91 & 150.12 \\ 
+  DREG.Lasso & -0.05 & 41.82 & 41.82 & -0.03 & 0.95 & 161.35 \\ 
+  AnCF.Lasso & 0.52 & 42.31 & 42.31 & -0.05 & 0.94 & 161.21 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = 0.75} 
+\end{table}
+[1] "Running time"
+Time difference of 5.597207 mins
+    -0.75      -0.5     -0.25         0      0.25       0.5      0.75 
+0.1338529 0.1441706 0.1450647 0.1424765 0.1429647 0.1417118 0.1410941 
+res5 res5 res5 res5 res5 res5 res5 
+   0    0    0    0    0    0    0 
+null device 
+          1 

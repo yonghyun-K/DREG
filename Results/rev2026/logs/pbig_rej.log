@@ -1,0 +1,62 @@
+Sampling: rejective | varying over: p
+Regression fit: OLS | An et al. estimator: TRUE | lasso only: TRUE | K = 10
+Sweep dimension: p = {500, 1000}
+Batch backend: allocated=96, workers=95
+[1] "SIMNUM = 1000 | sampling = rejective | fit = OLS"
+[1] "p = 500 , r = -0.75"
+[1] "c_N = -0.2947"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:18:41 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & 0.29 & 395.27 & 395.27 & -0.09 & 0.94 & 1462.59 \\ 
+  Diff & 1.39 & 66.81 & 66.83 & -0.05 & 0.94 & 252.38 \\ 
+  Diff.star & 1.36 & 74.33 & 74.34 & -0.05 & 0.94 & 280.40 \\ 
+  GREG.oracle & -4.62 & 74.34 & 74.49 & -0.07 & 0.93 & 277.39 \\ 
+  GREG.Lasso & -31.82 & 75.07 & 81.54 & -0.21 & 0.86 & 258.90 \\ 
+  DREG.Lasso & 1.70 & 77.44 & 77.46 & -0.07 & 0.94 & 289.70 \\ 
+  AnCF.Lasso & 1.32 & 79.24 & 79.25 & -0.08 & 0.93 & 294.99 \\ 
+   \hline
+\end{tabular}
+\caption{p = 500, r = -0.75} 
+\end{table}
+[1] "p = 1000 , r = -0.75"
+[1] "c_N = -0.2775"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:19:35 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & 4.03 & 379.24 & 379.26 & 0.02 & 0.94 & 1475.76 \\ 
+  Diff & 0.88 & 66.27 & 66.27 & 0.02 & 0.94 & 256.46 \\ 
+  Diff.star & 0.88 & 73.15 & 73.15 & 0.02 & 0.95 & 282.73 \\ 
+  GREG.oracle & -4.66 & 72.96 & 73.11 & -0.00 & 0.94 & 279.18 \\ 
+  GREG.Lasso & -34.29 & 75.91 & 83.30 & -0.20 & 0.84 & 258.61 \\ 
+  DREG.Lasso & 0.96 & 76.14 & 76.14 & 0.01 & 0.94 & 293.71 \\ 
+  AnCF.Lasso & -0.11 & 77.63 & 77.63 & 0.01 & 0.94 & 297.75 \\ 
+   \hline
+\end{tabular}
+\caption{p = 1000, r = -0.75} 
+\end{table}
+Warning messages:
+1: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, var_ht_exact, fit_ls, fit_lasso_beta, cf_predict, make_pop_folds, make_folds_strat_aware, an_strat, an_rej_cond, an_rej, run_estimators, sampling, N, n, s, len, z_sorted_idx, y, X, mu, mu_star, K_use, wls_use, an_use, lasso_only, pik, Dmat, wcan, qmat, strat_id
+2: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, var_ht_exact, fit_ls, fit_lasso_beta, cf_predict, make_pop_folds, make_folds_strat_aware, an_strat, an_rej_cond, an_rej, run_estimators, sampling, N, n, s, len, z_sorted_idx, y, X, mu, mu_star, K_use, wls_use, an_use, lasso_only, pik, Dmat, wcan, qmat, strat_id
+[1] "Running time"
+Time difference of 1.606151 mins
+       500       1000 
+0.04688283 0.02679296 
+res5 res5 
+   0    0 
+null device 
+          1 

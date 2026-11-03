@@ -149,6 +149,102 @@ ar1_cor <- function(p, rho) {
   rho ^ abs(outer(seq_len(p), seq_len(p), "-"))
 }
 
+## ---------------------------
+## Revision helpers (JSSAM-2026-121)
+## ---------------------------
+# X carries a column of ones in position 1, and glmnet fits its own unpenalized
+# intercept; add that intercept to the column's coefficient so X %*% beta
+# reproduces the lasso predictions.
+lasso_beta <- function(fit, s = NULL) {
+  b <- if (is.null(s)) as.vector(coef(fit)) else as.vector(coef(fit, s = s))
+  beta <- b[-1]
+  beta[1] <- beta[1] + b[1]
+  beta
+}
+
+# HT variance estimator (4.11) with exact pi_ij; Ds = (pi_ij - pi_i pi_j)/pi_ij on the sample.
+var_ht_exact <- function(e_s, pi_s, Ds) {
+  a <- e_s / pi_s
+  drop(crossprod(a, Ds %*% a))
+}
+
+# Balanced random partition of U into K folds, independent of the design.
+make_pop_folds <- function(N, K) {
+  kappa <- integer(N)
+  kappa[sample.int(N)] <- cut(seq_len(N), breaks = K, labels = FALSE)
+  kappa
+}
+
+# An et al. (2026), stratified SRSWOR: design-aware folds within strata.
+make_folds_strat_aware <- function(strat_id, Index, K) {
+  kappa <- integer(length(strat_id))
+  inS <- logical(length(strat_id)); inS[Index] <- TRUE
+  for (h in sort(unique(strat_id))) {
+    Uh <- which(strat_id == h)
+    Ah <- Uh[inS[Uh]]; Bh <- Uh[!inS[Uh]]
+    Nh <- length(Uh); nh <- length(Ah)
+    o <- sample.int(K)
+    Nhk <- (rep(Nh %/% K, K) + (seq_len(K) <= Nh %% K))[o]
+    nhk <- (rep(nh %/% K, K) + (seq_len(K) <= nh %% K))[o]
+    kappa[Ah[sample.int(length(Ah))]] <- rep(seq_len(K), times = nhk)
+    kappa[Bh[sample.int(length(Bh))]] <- rep(seq_len(K), times = Nhk - nhk)
+  }
+  kappa
+}
+
+an_strat <- function(mhat, kappa, strat_id, Index, y) {
+  cell_U <- paste(strat_id, kappa)
+  cell_A <- cell_U[Index]
+  N_c <- table(cell_U); n_c <- table(cell_A)
+  e <- y[Index] - mhat[Index]
+  Nk <- as.numeric(N_c[cell_A]); nk <- as.numeric(n_c[cell_A])
+  total <- sum(mhat) + sum(e * Nk / nk)
+  V <- 0
+  for (cc in names(n_c)) {
+    ec <- e[cell_A == cc]
+    Ncc <- as.numeric(N_c[cc]); ncc <- length(ec)
+    if (ncc > 1) V <- V + Ncc^2 * (1 - ncc / Ncc) * stats::var(ec) / ncc
+  }
+  c(total, sqrt(max(V, 0)))
+}
+
+# An et al. (2026), rejective sampling: population folds; conditional CPS probabilities.
+an_rej_cond <- function(kappa, K, Index, wcan) {
+  lapply(1:K, function(k) {
+    Uk <- which(kappa == k)
+    Ak <- Index[kappa[Index] == k]
+    pc <- sampling::UPMEpikfromq(sampling::UPMEqfromw(wcan[Uk], length(Ak)))
+    p2 <- sampling::UPMEpik2frompikw(pc, wcan[Uk])
+    pos <- match(Ak, Uk)
+    pcA <- pc[pos]
+    D <- (p2[pos, pos, drop = FALSE] - tcrossprod(pcA)) / p2[pos, pos, drop = FALSE]
+    list(Ak = Ak, pcA = pcA, D = D)
+  })
+}
+
+an_rej <- function(mhat, cond, y) {
+  total <- sum(mhat); V <- 0
+  for (cc in cond) {
+    a <- (y[cc$Ak] - mhat[cc$Ak]) / cc$pcA
+    total <- total + sum(a)
+    V <- V + drop(crossprod(a, cc$D %*% a))
+  }
+  c(total, sqrt(max(V, 0)))
+}
+
+# Out-of-fold predictions for a generic learner.
+cf_oof <- function(fit_fun, pred_fun, X_cov, y, d1, Index, kappa, K, wls, fit_args = list()) {
+  mhat <- numeric(nrow(X_cov))
+  for (k in 1:K) {
+    tr <- Index[kappa[Index] != k]
+    te <- which(kappa == k)
+    model <- do.call(fit_fun, c(list(X_train = X_cov[tr, , drop = FALSE], y_train = y[tr],
+                                     w_train = if (wls) d1[tr] else NULL), fit_args))
+    mhat[te] <- pred_fun(model, X_cov[te, , drop = FALSE])
+  }
+  mhat
+}
+
 ## =========================================================
 ## Sampling designs
 ## =========================================================
@@ -297,7 +393,7 @@ run_estimators_oneK <- function(
     cv_model <- glmnet::cv.glmnet(X_s, y_s, nfolds = lasso_nfolds)
     best_model <- glmnet::glmnet(X_s, y_s, lambda = cv_model$lambda.min)
   }
-  beta_hat_Lasso <- as.vector(coef(best_model))[-1]
+  beta_hat_Lasso <- lasso_beta(best_model)
   y_Lasso <- drop(colSums(X) %*% beta_hat_Lasso + sum((y_s - drop(X_s %*% beta_hat_Lasso)) * d1_s))
 
   # ----- Variances (design-specific)
@@ -381,7 +477,7 @@ run_estimators_oneK <- function(
       cv2 <- glmnet::cv.glmnet(X_s2, y_s2, nfolds = lasso_nfolds)
       fit2 <- glmnet::glmnet(X_s2, y_s2, lambda = cv2$lambda.min)
     }
-    beta2_L <- as.vector(coef(fit2))[-1]
+    beta2_L <- lasso_beta(fit2)
 
     y_dreg_lasso_parts[k] <- drop(colSums(X[SubIndex, , drop = FALSE]) %*% beta2_L +
                                     sum((y_s1 - drop(X_s1 %*% beta2_L)) * d1_s1))
@@ -580,7 +676,7 @@ run_grid <- function(
       "sample_design_stratified", "quad_Omega_strata",
       "sample_design_rejective", "make_pi_from_z", "var_poisson_approx",
       # estimation
-      "run_estimators_oneK",
+      "run_estimators_oneK", "lasso_beta",
       # objects
       "sampling", "N", "n", "s", "len", "z_sorted_idx", "z", "y", "X", "mu", "t_y", "K", "wls"
     )
@@ -887,7 +983,7 @@ run_estimators_multiK <- function(
     cv_model <- glmnet::cv.glmnet(X_s, y_s, nfolds = lasso_nfolds)
     best_model <- glmnet::glmnet(X_s, y_s, lambda = cv_model$lambda.min)
   }
-  beta_hat_Lasso <- as.vector(coef(best_model))[-1]
+  beta_hat_Lasso <- lasso_beta(best_model)
 
   y_HT   <- sum(y_s * d1_s)
   y_diff <- drop(sum(mu) + sum((y_s - mu[Index]) * d1_s))
@@ -960,7 +1056,7 @@ run_estimators_multiK <- function(
         cv2 <- glmnet::cv.glmnet(X_s2, y_s2, nfolds = lasso_nfolds)
         fit2 <- glmnet::glmnet(X_s2, y_s2, lambda = cv2$lambda.min)
       }
-      beta2_L <- as.vector(coef(fit2))[-1]
+      beta2_L <- lasso_beta(fit2)
       y_parts_L[k] <- drop(colSums(X[SubIndex, , drop = FALSE]) %*% beta2_L +
                              sum((y_s1 - drop(X_s1 %*% beta2_L)) * d1_s1))
       e_oof_L[as.character(Index_sub1)] <- drop(y_s1 - X_s1 %*% beta2_L)
@@ -1040,7 +1136,7 @@ run_K_grid <- function(
   export_vars <- c(
     "sample_design_stratified", "quad_Omega_strata",
     "sample_design_rejective", "make_pi_from_z", "var_poisson_approx",
-    "run_estimators_multiK",
+    "run_estimators_multiK", "lasso_beta",
     "sampling", "N", "n", "s", "len", "z_sorted_idx", "z", "y", "X", "mu", "t_y", "wls", "K_vec"
   )
 
@@ -1337,60 +1433,6 @@ greg_from_preds <- function(m_pop, m_s, y_s, d1_s) {
   sum(m_pop) + sum((y_s - m_s) * d1_s)
 }
 
-dreg_from_fit <- function(
-  fit_fun,
-  pred_fun,
-  X_cov,
-  y,
-  d1,
-  Index,
-  K,
-  wls,
-  sampling,
-  pi = NULL,
-  n_h = NULL, st = NULL, cumn_h = NULL, len = NULL,
-  fit_args = list(),
-  pred_args = list()
-) {
-  perm <- sample.int(nrow(X_cov))
-  groups <- cut(seq_along(perm), breaks = K, labels = FALSE)
-  SubIndex_list <- split(perm, groups)
-
-  y_parts <- numeric(K)
-  e_oof <- numeric(length(Index)); names(e_oof) <- as.character(Index)
-
-  for (k in 1:K) {
-    SubIndex <- SubIndex_list[[k]]
-    Index_sub1 <- Index[Index %in% SubIndex]
-    Index_sub2 <- Index[!(Index %in% SubIndex)]
-
-    X_tr <- X_cov[Index_sub2, , drop = FALSE]
-    y_tr <- y[Index_sub2]
-    w_tr <- if (wls) d1[Index_sub2] else NULL
-
-    model <- do.call(fit_fun, c(list(X_train = X_tr, y_train = y_tr, w_train = w_tr), fit_args))
-
-    # Fold population prediction sum
-    m_fold_pop <- do.call(pred_fun, c(list(model = model, X_new = X_cov[SubIndex, , drop = FALSE]), pred_args))
-    # Fold sampled prediction for residual correction
-    m_fold_s <- do.call(pred_fun, c(list(model = model, X_new = X_cov[Index_sub1, , drop = FALSE]), pred_args))
-
-    y_parts[k] <- greg_from_preds(m_fold_pop, m_fold_s, y[Index_sub1], d1[Index_sub1])
-    e_oof[as.character(Index_sub1)] <- y[Index_sub1] - m_fold_s
-  }
-
-  y_dreg <- sum(y_parts)
-  e_s_ss <- e_oof[as.character(Index)]
-
-  if (sampling == "stratified") {
-    sigma <- sqrt(quad_Omega_strata(e_s_ss, n_h, len, st, cumn_h))
-  } else {
-    sigma <- sqrt(var_poisson_approx(e_s_ss, pi[Index]))
-  }
-
-  list(est = y_dreg, sigma = sigma)
-}
-
 run_nonlinear <- function(
   SIMNUM,
   sampling,
@@ -1409,7 +1451,8 @@ run_nonlinear <- function(
   cluster_type = "PSOCK",
   cluster_outfile = "",
   seed_pop,
-  seed_sim
+  seed_sim,
+  an = TRUE
 ) {
   stopifnot(sampling %in% c("stratified", "rejective"))
 
@@ -1427,12 +1470,23 @@ run_nonlinear <- function(
   len <- round(N / 4)
   z <- r_use * e + rnorm(N, 0, sqrt(1 - r_use^2))
   z_sorted_idx <- order(z)
+  strat_id <- integer(N)
+  for (h in 1:4) strat_id[z_sorted_idx[(len * (h - 1) + 1):(len * h)]] <- h
+
+  # Rejective design: exact pi_ij for (4.11) and canonical CPS weights (An et al.)
+  pik <- NULL; Dmat <- NULL; wcan <- NULL
+  if (sampling == "rejective") {
+    pik  <- make_pi_from_z(z, n, gamma = 1)
+    pi2  <- sampling::UPmaxentropypi2(pik)
+    Dmat <- (pi2 - tcrossprod(pik)) / pi2
+    rm(pi2)
+    pikt <- sampling::UPMEpiktildefrompik(pik)
+    wcan <- pikt / (1 - pikt)
+  }
 
   # Feature matrices
   X_lin <- cbind(1, X0)                           # linear uses intercept + all p
   X_np  <- X0[, 1:np_dim, drop = FALSE]           # spline/RF use first np_dim covariates (no intercept)
-
-  # Which nonparam methods to run
   np_methods <- intersect(np_methods, c("spline", "rf"))
 
   workers <- if (!is.na(workers_override)) {
@@ -1446,193 +1500,114 @@ run_nonlinear <- function(
   doParallel::registerDoParallel(cl)
   on.exit({ try(parallel::stopCluster(cl), silent = TRUE) }, add = TRUE)
 
-  message(sprintf("[%s/nonlinear] SIMNUM=%d, workers=%d, K=%d, fit=%s, np={%s}",
-                  sampling, SIMNUM, workers, K, if (wls) "WLS" else "OLS", paste(np_methods, collapse = ",")))
+  message(sprintf("[%s/nonlinear] SIMNUM=%d, workers=%d, K=%d, fit=%s, np={%s}, An=%s",
+                  sampling, SIMNUM, workers, K, if (wls) "WLS" else "OLS",
+                  paste(np_methods, collapse = ","), an))
 
   doRNG::registerDoRNG(seed = seed_sim + 2000L)
 
   export_vars <- c(
-    # sampling
-    "sample_design_stratified", "quad_Omega_strata",
-    "sample_design_rejective", "make_pi_from_z", "var_poisson_approx",
-    # nonlinear helpers
-    "mu_nonlinear", "fit_spline", "pred_spline", "fit_rf", "pred_rf",
-    "greg_from_preds", "dreg_from_fit",
-    # objects
-    "sampling", "N", "n", "s", "len", "z_sorted_idx", "z", "y", "mu", "t_y", "K", "wls",
-    "X_lin", "X_np", "np_methods", "np_dim", "spline_df", "rf_trees", "rf_mtry", "rf_min_node"
+    "sample_design_stratified", "quad_Omega_strata", "sample_design_rejective", "make_pi_from_z",
+    "var_ht_exact", "make_pop_folds", "make_folds_strat_aware", "an_strat", "an_rej_cond", "an_rej",
+    "cf_oof", "mu_nonlinear", "fit_spline", "pred_spline", "fit_rf", "pred_rf", "greg_from_preds",
+    "sampling", "N", "n", "s", "len", "z_sorted_idx", "z", "y", "mu", "t_y", "K", "wls", "an",
+    "X_lin", "X_np", "np_methods", "np_dim", "spline_df", "rf_trees", "rf_mtry", "rf_min_node",
+    "pik", "Dmat", "wcan", "strat_id"
   )
 
   final_res <- foreach::foreach(
     sim = 1:SIMNUM,
     .export = export_vars,
-    .packages = character(0),
+    .packages = c("sampling"),
     .errorhandling = "pass"
   ) %dopar% {
-    # Draw sample
     if (sampling == "stratified") {
       samp <- sample_design_stratified(N = N, n = n, len = len, z_sorted_idx = z_sorted_idx, y = y, X = X_lin)
-      Index <- samp$Index
-      d1 <- samp$d1
-      d1_s <- samp$d1_s
-      y_s <- samp$y_s
-      # for variance
-      n_h <- samp$n_h; st <- samp$st; cumn_h <- samp$cumn_h
-      pi <- NULL
+      Index <- samp$Index; d1 <- samp$d1
+      vfun <- function(e_s) quad_Omega_strata(e_s, samp$n_h, len, samp$st, samp$cumn_h)
     } else {
       samp <- sample_design_rejective(N = N, n = n, z = z, y = y, X = X_lin, gamma = 1)
-      Index <- samp$Index
-      d1 <- samp$d1
-      d1_s <- samp$d1_s
-      y_s <- samp$y_s
-      n_h <- st <- cumn_h <- NULL
-      pi <- samp$pi
+      Index <- samp$Index; d1 <- samp$d1
+      Ds <- Dmat[Index, Index]; pis <- pik[Index]
+      vfun <- function(e_s) var_ht_exact(e_s, pis, Ds)
+    }
+    d1_s <- d1[Index]; y_s <- y[Index]
+
+    est <- c(); sig <- c()
+    add <- function(name, mpop) {
+      e_s <- y_s - mpop[Index]
+      est[name] <<- sum(mpop) + sum(e_s * d1_s)
+      sig[name] <<- sqrt(max(vfun(e_s), 0))
     }
 
-    # Oracle difference
-    y_diff <- drop(sum(mu) + sum((y_s - mu[Index]) * d1_s))
-    if (sampling == "stratified") {
-      sig_diff <- sqrt(quad_Omega_strata(y_s - mu[Index], n_h, len, st, cumn_h))
-    } else {
-      sig_diff <- sqrt(var_poisson_approx(y_s - mu[Index], pi[Index]))
-    }
+    # Oracle difference estimator
+    add("Diff", mu)
 
-    out <- list(Diff = y_diff)
-    sig <- list(Diff = sig_diff)
+    # Population folds (DREG) and, for An et al., design-aware folds or CPS conditional probabilities
+    kappa <- make_pop_folds(N, K)
+    kappa_aw <- if (an && sampling == "stratified") make_folds_strat_aware(strat_id, Index, K) else NULL
+    cond <- if (an && sampling == "rejective") an_rej_cond(kappa, K, Index, wcan) else NULL
 
-    # --- Linear working model (lm)
-    Xs_lin <- X_lin[Index, , drop = FALSE]
-    if (wls) {
-      lm_fit <- lm(y_s ~ 0 + Xs_lin, weights = d1_s)
-    } else {
-      lm_fit <- lm(y_s ~ 0 + Xs_lin)
-    }
-    beta_hat <- lm_fit$coefficients
-    m_pop <- drop(X_lin %*% beta_hat)
-    m_s   <- drop(Xs_lin %*% beta_hat)
-    out$GREG.linear <- greg_from_preds(m_pop, m_s, y_s, d1_s)
-
-    e_s <- y_s - m_s
-    if (sampling == "stratified") {
-      sig$GREG.linear <- sqrt(quad_Omega_strata(e_s, n_h, len, st, cumn_h))
-    } else {
-      sig$GREG.linear <- sqrt(var_poisson_approx(e_s, pi[Index]))
-    }
-
-    # DREG.linear
     fit_lm <- function(X_train, y_train, w_train = NULL) {
-      if (!is.null(w_train)) {
-        fit <- lm(y_train ~ 0 + X_train, weights = w_train)
-      } else {
-        fit <- lm(y_train ~ 0 + X_train)
-      }
-      list(beta = fit$coefficients)
+      b <- if (is.null(w_train)) stats::lm.fit(X_train, y_train)$coefficients else
+        stats::lm.wfit(X_train, y_train, w_train)$coefficients
+      b[is.na(b)] <- 0
+      list(beta = b)
     }
     pred_lm <- function(model, X_new) drop(X_new %*% model$beta)
 
-    dreg_lin <- dreg_from_fit(
-      fit_fun = fit_lm,
-      pred_fun = pred_lm,
-      X_cov = X_lin,
-      y = y,
-      d1 = d1,
-      Index = Index,
-      K = K,
-      wls = wls,
-      sampling = sampling,
-      pi = pi,
-      n_h = n_h, st = st, cumn_h = cumn_h, len = len
-    )
-    out$DREG.linear <- dreg_lin$est
-    sig$DREG.linear <- dreg_lin$sigma
-
-    # --- Spline working model
+    learners <- list(linear = list(fit = fit_lm, pred = pred_lm, X = X_lin, args = list()))
     if ("spline" %in% np_methods) {
-      Xs_np <- X_np[Index, , drop = FALSE]
-      w_fit <- if (wls) d1_s else NULL
-      sp_fit <- fit_spline(X_train = Xs_np, y_train = y_s, w_train = w_fit, df = spline_df)
-      m_pop_sp <- pred_spline(sp_fit, X_np)
-      m_s_sp   <- pred_spline(sp_fit, Xs_np)
-      out$GREG.spline <- greg_from_preds(m_pop_sp, m_s_sp, y_s, d1_s)
-
-      e_s_sp <- y_s - m_s_sp
-      if (sampling == "stratified") {
-        sig$GREG.spline <- sqrt(quad_Omega_strata(e_s_sp, n_h, len, st, cumn_h))
-      } else {
-        sig$GREG.spline <- sqrt(var_poisson_approx(e_s_sp, pi[Index]))
-      }
-
-      dreg_sp <- dreg_from_fit(
-        fit_fun = fit_spline,
-        pred_fun = pred_spline,
-        X_cov = X_np,
-        y = y,
-        d1 = d1,
-        Index = Index,
-        K = K,
-        wls = wls,
-        sampling = sampling,
-        pi = pi,
-        n_h = n_h, st = st, cumn_h = cumn_h, len = len,
-        fit_args = list(df = spline_df)
-      )
-      out$DREG.spline <- dreg_sp$est
-      sig$DREG.spline <- dreg_sp$sigma
+      learners$spline <- list(fit = fit_spline, pred = pred_spline, X = X_np, args = list(df = spline_df))
     }
-
-    # --- Random forest working model
     if ("rf" %in% np_methods) {
-      Xs_np <- X_np[Index, , drop = FALSE]
-      w_fit <- if (wls) d1_s else NULL
-
-      rf_fit <- fit_rf(X_train = Xs_np, y_train = y_s, w_train = w_fit, num.trees = rf_trees, mtry = rf_mtry, min.node.size = rf_min_node)
-      m_pop_rf <- pred_rf(rf_fit, X_np)
-      m_s_rf   <- pred_rf(rf_fit, Xs_np)
-      out$GREG.rf <- greg_from_preds(m_pop_rf, m_s_rf, y_s, d1_s)
-
-      e_s_rf <- y_s - m_s_rf
-      if (sampling == "stratified") {
-        sig$GREG.rf <- sqrt(quad_Omega_strata(e_s_rf, n_h, len, st, cumn_h))
-      } else {
-        sig$GREG.rf <- sqrt(var_poisson_approx(e_s_rf, pi[Index]))
-      }
-
-      dreg_rf <- dreg_from_fit(
-        fit_fun = fit_rf,
-        pred_fun = pred_rf,
-        X_cov = X_np,
-        y = y,
-        d1 = d1,
-        Index = Index,
-        K = K,
-        wls = wls,
-        sampling = sampling,
-        pi = pi,
-        n_h = n_h, st = st, cumn_h = cumn_h, len = len,
-        fit_args = list(num.trees = rf_trees, mtry = rf_mtry, min.node.size = rf_min_node)
-      )
-      out$DREG.rf <- dreg_rf$est
-      sig$DREG.rf <- dreg_rf$sigma
+      learners$rf <- list(fit = fit_rf, pred = pred_rf, X = X_np,
+                          args = list(num.trees = rf_trees, mtry = rf_mtry, min.node.size = rf_min_node))
     }
 
-    out <- unlist(out)
-    sig <- unlist(sig)
+    for (nm in names(learners)) {
+      L <- learners[[nm]]
+      # GREG: full-sample fit, no splitting
+      model <- do.call(L$fit, c(list(X_train = L$X[Index, , drop = FALSE], y_train = y_s,
+                                     w_train = if (wls) d1_s else NULL), L$args))
+      add(paste0("GREG.", nm), L$pred(model, L$X))
+      # DREG: population folds independent of the design
+      mhat <- cf_oof(L$fit, L$pred, L$X, y, d1, Index, kappa, K, wls, L$args)
+      add(paste0("DREG.", nm), mhat)
+      # An et al. (2026): conditional weights
+      if (an) {
+        rr <- if (sampling == "stratified") {
+          an_strat(cf_oof(L$fit, L$pred, L$X, y, d1, Index, kappa_aw, K, wls, L$args),
+                   kappa_aw, strat_id, Index, y)
+        } else {
+          an_rej(mhat, cond, y)
+        }
+        est[paste0("AnCF.", nm)] <- rr[1]; sig[paste0("AnCF.", nm)] <- rr[2]
+      }
+    }
 
-    list(
-      y = out,
-      sigma = sig,
-      cover = ifelse(abs(out - t_y) > 1.96 * sig, 0, 1)
-    )
+    list(y = est, sigma = sig, cover = as.numeric(abs(est - t_y) <= 1.96 * sig))
   }
 
   ok <- vapply(final_res, function(x) is.list(x) && is.numeric(unlist(x$y)), logical(1))
-  if (sum(ok) == 0) stop("All simulations failed in nonlinear run.")
+  if (sum(ok) == 0) { print(final_res[[1]]); stop("All simulations failed in nonlinear run.") }
+  if (any(!ok)) { message(sprintf("  failures=%d/%d", sum(!ok), SIMNUM)); print(final_res[!ok][[1]]) }
 
-  ys <- do.call(rbind, lapply(final_res[ok], `[[`, "y"))
+  ys   <- do.call(rbind, lapply(final_res[ok], `[[`, "y"))
+  sigs <- do.call(rbind, lapply(final_res[ok], `[[`, "sigma"))
+  covs <- do.call(rbind, lapply(final_res[ok], `[[`, "cover")); colnames(covs) <- colnames(ys)
+
   bias <- colMeans(ys - t_y)
+  sd   <- apply(ys, 2, function(x) sqrt(var(x) * (length(x) - 1) / length(x)))
   rmse <- apply(ys - t_y, 2, function(x) sqrt(mean(x^2)))
+  rb   <- (colMeans(sigs^2) - sd^2) / sd^2
+  cr   <- colMeans(covs)
+  summary <- data.frame(estimator = colnames(ys), BIAS = bias, SD = sd, RMSE = rmse, RB = rb,
+                        CR = cr, CR_MCSE = sqrt(cr * (1 - cr) / nrow(ys)),
+                        CIL = colMeans(2 * qnorm(0.975) * sigs), B = nrow(ys), row.names = NULL)
+  print(summary, digits = 3)
 
-  list(sampling = sampling, wls = wls, bias = bias, rmse = rmse, err = ys - t_y)
+  list(sampling = sampling, wls = wls, bias = bias, rmse = rmse, err = ys - t_y, summary = summary)
 }
 
 make_nonlinear_summary_plot <- function(resNL, show_legend = TRUE) {
@@ -1692,6 +1667,7 @@ make_nonlinear_boxplot <- function(res_list, design_labels = NULL, base_size = 1
     "GREG.rf", "DREG.rf"
   )
   est_order <- est_order[est_order %in% unique(df$estimator)]
+  df <- df[df$estimator %in% est_order, , drop = FALSE]   # An et al. results are tabulated, not plotted
 
   pretty <- c(
     Diff = "Diff",
@@ -1860,6 +1836,7 @@ run_K_task <- function() {
       res_list[[sampling]] <- resK
 
       suffix_wls <- if (wls) "_wls" else ""
+      saveRDS(resK, file.path(OUTDIR, sprintf("K_%s%s.rds", sampling, suffix_wls)))
       fname <- sprintf("supp_K_%s%s.%s", sampling, suffix_wls, FIG_EXT)
       pK <- make_K_plot(resK, show_legend = TRUE, base_size = BASE_SIZE)
       save_png(pK, file.path(OUTDIR, fname), width = 7.4, height = 4.2)
@@ -1905,6 +1882,9 @@ run_nonlinear_task <- function() {
       res_list[[sampling]] <- resNL
 
       suffix_wls <- if (wls) "_wls" else ""
+      write.csv(resNL$summary, file.path(OUTDIR, sprintf("nonlinear_summary_%s%s.csv", sampling, suffix_wls)),
+                row.names = FALSE)
+      saveRDS(resNL, file.path(OUTDIR, sprintf("nonlinear_%s%s.rds", sampling, suffix_wls)))
       fname <- sprintf("supp_nonlinear_%s%s.%s", sampling, suffix_wls, FIG_EXT)
       pNL <- make_nonlinear_boxplot(list(resNL), design_labels = sampling, base_size = BASE_SIZE)
       save_png(pNL, file.path(OUTDIR, fname), width = 7.8, height = 5.2)

@@ -1,0 +1,203 @@
+Sampling: rejective | varying over: r
+Regression fit: OLS | An et al. estimator: TRUE | lasso only: FALSE | K = 10
+Sweep dimension: r = {-0.75, -0.5, -0.25, 0, 0.25, 0.5, 0.75}
+Batch backend: allocated=96, workers=95
+[1] "SIMNUM = 2000 | sampling = rejective | fit = OLS"
+[1] "p = 90 , r = -0.75"
+[1] "c_N = -0.2958"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:02:37 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & 3.14 & 415.54 & 415.55 & 0.00 & 0.94 & 1559.97 \\ 
+  Diff & 0.54 & 78.19 & 78.19 & -0.02 & 0.92 & 281.86 \\ 
+  Diff.star & 0.61 & 86.14 & 86.14 & -0.02 & 0.92 & 311.42 \\ 
+  GREG.oracle & -4.82 & 84.76 & 84.90 & -0.02 & 0.91 & 307.20 \\ 
+  GREG & -90.47 & 78.00 & 119.45 & -0.30 & 0.57 & 237.77 \\ 
+  DREG & 3.03 & 96.90 & 96.95 & -0.02 & 0.93 & 347.11 \\ 
+  AnCF & 2.13 & 98.19 & 98.22 & -0.02 & 0.93 & 350.92 \\ 
+  GREG.Lasso & -17.37 & 83.59 & 85.37 & -0.06 & 0.89 & 296.59 \\ 
+  DREG.Lasso & 1.43 & 86.86 & 86.87 & -0.01 & 0.93 & 315.98 \\ 
+  AnCF.Lasso & 0.65 & 88.28 & 88.29 & -0.01 & 0.92 & 319.81 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = -0.75} 
+\end{table}
+[1] "p = 90 , r = -0.5"
+[1] "c_N = -0.2024"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:03:08 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & -1.48 & 395.46 & 395.46 & -0.05 & 0.93 & 1468.76 \\ 
+  Diff & 0.58 & 69.43 & 69.44 & -0.08 & 0.94 & 250.04 \\ 
+  Diff.star & 0.58 & 73.66 & 73.66 & -0.08 & 0.94 & 264.45 \\ 
+  GREG.oracle & -3.34 & 73.14 & 73.21 & -0.10 & 0.93 & 260.63 \\ 
+  GREG & -63.51 & 73.54 & 97.17 & -0.41 & 0.65 & 213.73 \\ 
+  DREG & 2.12 & 86.92 & 86.95 & -0.09 & 0.94 & 312.99 \\ 
+  AnCF & 1.51 & 88.42 & 88.43 & -0.09 & 0.94 & 317.24 \\ 
+  GREG.Lasso & -14.10 & 73.26 & 74.60 & -0.15 & 0.90 & 252.54 \\ 
+  DREG.Lasso & 0.37 & 75.62 & 75.62 & -0.09 & 0.93 & 271.29 \\ 
+  AnCF.Lasso & -0.17 & 76.60 & 76.60 & -0.08 & 0.93 & 275.00 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = -0.5} 
+\end{table}
+[1] "p = 90 , r = -0.25"
+[1] "c_N = -0.09829"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:03:38 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & -3.59 & 366.67 & 366.69 & -0.02 & 0.94 & 1398.79 \\ 
+  Diff & 0.28 & 62.24 & 62.24 & -0.05 & 0.95 & 233.24 \\ 
+  Diff.star & 0.25 & 63.39 & 63.39 & -0.05 & 0.95 & 237.11 \\ 
+  GREG.oracle & -1.71 & 63.48 & 63.50 & -0.08 & 0.94 & 234.36 \\ 
+  GREG & -32.49 & 67.71 & 75.10 & -0.42 & 0.79 & 198.48 \\ 
+  DREG & 1.56 & 77.69 & 77.71 & -0.05 & 0.94 & 291.41 \\ 
+  AnCF & 1.73 & 79.36 & 79.38 & -0.06 & 0.94 & 295.49 \\ 
+  GREG.Lasso & -7.30 & 64.26 & 64.67 & -0.14 & 0.92 & 228.35 \\ 
+  DREG.Lasso & 0.46 & 66.12 & 66.12 & -0.07 & 0.95 & 245.54 \\ 
+  AnCF.Lasso & 0.72 & 67.59 & 67.60 & -0.07 & 0.94 & 249.15 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = -0.25} 
+\end{table}
+[1] "p = 90 , r = 0"
+[1] "c_N = 0.007599"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:04:08 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & -10.14 & 341.73 & 341.88 & 0.02 & 0.94 & 1331.64 \\ 
+  Diff & -1.32 & 59.63 & 59.65 & -0.05 & 0.95 & 225.42 \\ 
+  Diff.star & -1.31 & 59.62 & 59.64 & -0.05 & 0.95 & 225.40 \\ 
+  GREG.oracle & -1.14 & 60.00 & 60.01 & -0.08 & 0.94 & 223.33 \\ 
+  GREG & -3.06 & 66.04 & 66.11 & -0.44 & 0.85 & 191.38 \\ 
+  DREG & -0.59 & 73.90 & 73.90 & -0.04 & 0.94 & 281.01 \\ 
+  AnCF & -0.56 & 75.29 & 75.29 & -0.05 & 0.94 & 284.58 \\ 
+  GREG.Lasso & -1.78 & 60.94 & 60.97 & -0.15 & 0.92 & 218.00 \\ 
+  DREG.Lasso & -1.12 & 62.38 & 62.39 & -0.07 & 0.94 & 234.24 \\ 
+  AnCF.Lasso & -1.02 & 63.29 & 63.30 & -0.07 & 0.94 & 237.23 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = 0} 
+\end{table}
+[1] "p = 90 , r = 0.25"
+[1] "c_N = 0.1146"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:04:38 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & -6.68 & 322.21 & 322.27 & 0.04 & 0.95 & 1270.67 \\ 
+  Diff & -1.20 & 59.29 & 59.31 & -0.01 & 0.95 & 228.76 \\ 
+  Diff.star & -1.15 & 60.39 & 60.41 & -0.02 & 0.95 & 232.63 \\ 
+  GREG.oracle & 1.05 & 60.58 & 60.59 & -0.04 & 0.94 & 230.19 \\ 
+  GREG & 28.48 & 64.81 & 70.79 & -0.41 & 0.82 & 194.07 \\ 
+  DREG & -0.63 & 72.79 & 72.79 & 0.01 & 0.94 & 284.09 \\ 
+  AnCF & -0.27 & 73.88 & 73.88 & 0.00 & 0.94 & 287.70 \\ 
+  GREG.Lasso & 5.18 & 61.16 & 61.37 & -0.11 & 0.93 & 223.72 \\ 
+  DREG.Lasso & -1.10 & 62.73 & 62.74 & -0.03 & 0.95 & 240.26 \\ 
+  AnCF.Lasso & -0.60 & 63.82 & 63.83 & -0.04 & 0.95 & 243.25 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = 0.25} 
+\end{table}
+[1] "p = 90 , r = 0.5"
+[1] "c_N = 0.2218"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:05:08 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & -5.03 & 310.62 & 310.66 & -0.00 & 0.94 & 1199.51 \\ 
+  Diff & -1.59 & 61.87 & 61.90 & 0.04 & 0.95 & 243.31 \\ 
+  Diff.star & -1.58 & 65.87 & 65.89 & 0.04 & 0.95 & 258.03 \\ 
+  GREG.oracle & 2.68 & 65.82 & 65.87 & 0.01 & 0.94 & 254.72 \\ 
+  GREG & 59.59 & 66.61 & 89.37 & -0.35 & 0.70 & 207.10 \\ 
+  DREG & -1.82 & 76.44 & 76.46 & 0.04 & 0.95 & 301.39 \\ 
+  AnCF & -1.57 & 77.77 & 77.78 & 0.03 & 0.95 & 305.19 \\ 
+  GREG.Lasso & 11.64 & 65.93 & 66.95 & -0.06 & 0.92 & 246.41 \\ 
+  DREG.Lasso & -1.75 & 67.16 & 67.18 & 0.04 & 0.95 & 264.15 \\ 
+  AnCF.Lasso & -1.18 & 68.52 & 68.53 & 0.03 & 0.95 & 267.37 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = 0.5} 
+\end{table}
+[1] "p = 90 , r = 0.75"
+[1] "c_N = 0.3281"
+[1] "# of failure: 0"
+% latex table generated in R 4.3.3 by xtable 1.8-4 package
+% Tue Nov  3 07:05:38 2026
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrrr}
+  \hline
+estimator & BIAS & SD & RMSE & RB & CR & CIL \\ 
+  \hline
+HT & -2.25 & 294.21 & 294.22 & -0.01 & 0.94 & 1130.54 \\ 
+  Diff & -0.66 & 70.45 & 70.46 & 0.03 & 0.94 & 269.33 \\ 
+  Diff.star & -0.61 & 78.47 & 78.47 & 0.03 & 0.93 & 299.78 \\ 
+  GREG.oracle & 5.55 & 77.83 & 78.03 & 0.01 & 0.92 & 295.40 \\ 
+  GREG & 92.50 & 72.46 & 117.50 & -0.30 & 0.57 & 230.60 \\ 
+  DREG & -0.98 & 86.43 & 86.44 & 0.02 & 0.94 & 333.43 \\ 
+  AnCF & -0.53 & 88.17 & 88.17 & 0.01 & 0.93 & 337.76 \\ 
+  GREG.Lasso & 18.93 & 76.99 & 79.28 & -0.04 & 0.89 & 285.00 \\ 
+  DREG.Lasso & -0.85 & 79.10 & 79.10 & 0.03 & 0.94 & 304.51 \\ 
+  AnCF.Lasso & -0.30 & 80.70 & 80.70 & 0.03 & 0.94 & 308.57 \\ 
+   \hline
+\end{tabular}
+\caption{p = 90, r = 0.75} 
+\end{table}
+Warning messages:
+1: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, var_ht_exact, fit_ls, fit_lasso_beta, cf_predict, make_pop_folds, make_folds_strat_aware, an_strat, an_rej_cond, an_rej, run_estimators, sampling, N, n, s, len, z_sorted_idx, y, X, mu, mu_star, K_use, wls_use, an_use, lasso_only, pik, Dmat, wcan, qmat, strat_id
+2: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, var_ht_exact, fit_ls, fit_lasso_beta, cf_predict, make_pop_folds, make_folds_strat_aware, an_strat, an_rej_cond, an_rej, run_estimators, sampling, N, n, s, len, z_sorted_idx, y, X, mu, mu_star, K_use, wls_use, an_use, lasso_only, pik, Dmat, wcan, qmat, strat_id
+3: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, var_ht_exact, fit_ls, fit_lasso_beta, cf_predict, make_pop_folds, make_folds_strat_aware, an_strat, an_rej_cond, an_rej, run_estimators, sampling, N, n, s, len, z_sorted_idx, y, X, mu, mu_star, K_use, wls_use, an_use, lasso_only, pik, Dmat, wcan, qmat, strat_id
+4: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, var_ht_exact, fit_ls, fit_lasso_beta, cf_predict, make_pop_folds, make_folds_strat_aware, an_strat, an_rej_cond, an_rej, run_estimators, sampling, N, n, s, len, z_sorted_idx, y, X, mu, mu_star, K_use, wls_use, an_use, lasso_only, pik, Dmat, wcan, qmat, strat_id
+5: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, var_ht_exact, fit_ls, fit_lasso_beta, cf_predict, make_pop_folds, make_folds_strat_aware, an_strat, an_rej_cond, an_rej, run_estimators, sampling, N, n, s, len, z_sorted_idx, y, X, mu, mu_star, K_use, wls_use, an_use, lasso_only, pik, Dmat, wcan, qmat, strat_id
+6: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, var_ht_exact, fit_ls, fit_lasso_beta, cf_predict, make_pop_folds, make_folds_strat_aware, an_strat, an_rej_cond, an_rej, run_estimators, sampling, N, n, s, len, z_sorted_idx, y, X, mu, mu_star, K_use, wls_use, an_use, lasso_only, pik, Dmat, wcan, qmat, strat_id
+7: In e$fun(obj, substitute(ex), parent.frame(), e$data) :
+  already exporting variable(s): sample_design_stratified, quad_Omega_strata, sample_design_rejective, var_ht_exact, fit_ls, fit_lasso_beta, cf_predict, make_pop_folds, make_folds_strat_aware, an_strat, an_rej_cond, an_rej, run_estimators, sampling, N, n, s, len, z_sorted_idx, y, X, mu, mu_star, K_use, wls_use, an_use, lasso_only, pik, Dmat, wcan, qmat, strat_id
+[1] "Running time"
+Time difference of 3.580783 mins
+    -0.75      -0.5     -0.25         0      0.25       0.5      0.75 
+0.1272118 0.1498824 0.1489412 0.1475706 0.1480471 0.1466647 0.1389059 
+res5 res5 res5 res5 res5 res5 res5 
+   0    0    0    0    0    0    0 
+null device 
+          1 
